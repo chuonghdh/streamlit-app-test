@@ -1,3 +1,4 @@
+
 import pandas as pd
 import gdown
 import streamlit as st
@@ -52,9 +53,11 @@ def upload_file_to_google_drive(file_path, file_name):
         return uploaded_file.get('id')
 
 # Google Drive file ID and output path
-file_id = '1eZnbPTimvWoIFbeRnQ2KPziY0P-g_MvO' # 'YOUR_FILE_ID'
-output_path = 'WordsBank.xlsx'
-file_name = 'WordsBank.xlsx'
+# https://docs.google.com/spreadsheets/d/17YxueOUwow5vJBgKxALlyNtxs9qtmQaj/edit?usp=sharing&ouid=117920818199174565935&rtpof=true&sd=true
+# https://docs.google.com/spreadsheets/d/1a1OPldUzDnQuCrllN6ebc35tfAXv44FE/edit?usp=sharing&ouid=117186288122919854960&rtpof=true&sd=true
+file_id = '17YxueOUwow5vJBgKxALlyNtxs9qtmQaj' #'1eZnbPTimvWoIFbeRnQ2KPziY0P-g_MvO' # 'YOUR_FILE_ID'
+output_path = 'TestsList.xlsx'
+file_name = 'TestsList.xlsx'
 
 # Download the file
 download_file_from_google_drive(file_id, output_path)
@@ -81,15 +84,17 @@ if submit_button:
     new_row = pd.DataFrame(new_row_data, index=[0])
     st.write("New row:", new_row)
 
-    #df = df.append(new_row, ignore_index=True)
-
+    df = pd.concat([df, new_row], ignore_index=True)
+    st.write("Append successful")
+    
     # Create a DataFrame for the new row
-    new_row_df = pd.DataFrame([new_row])
-    st.write("New row DataFrame:", new_row_df)
+    #new_row_df = pd.DataFrame([new_row])
+    #st.write("New row DataFrame:", new_row_df)
 
     # Concatenate the new row DataFrame with the existing DataFrame
-    df = pd.concat([df, new_row_df], ignore_index=True)
+    #df = pd.concat([df, new_row_df], ignore_index=True)
     df.to_excel(output_path, index=False, engine='openpyxl')
+    
 
     # Upload the updated file back to Google Drive
     upload_file_to_google_drive(output_path, file_name)
