@@ -1,6 +1,7 @@
 streamlit
 pandas
 numpy
+csv
 gdown
 openpyxl
 google-auth
