@@ -13,12 +13,14 @@ df = st.session_state.df
 # Streamlit app
 st.title('Read and Edit CSV File')
 
-# Check for query parameters to determine if we're in the edit mode
-query_params = st.query_params
-selected_index = query_params.get('edit')
+# Check if we're in edit mode
+if 'edit_mode' not in st.session_state:
+    st.session_state.edit_mode = False
+if 'selected_index' not in st.session_state:
+    st.session_state.selected_index = None
 
-# If no selected index, display the main table
-if selected_index is None:
+# Display the table or the form based on the mode
+if not st.session_state.edit_mode:
     st.write("Here is the content of the CSV file:")
     for i, row in df.iterrows():
         cols = st.columns(len(df.columns) + 1)
@@ -31,12 +33,10 @@ if selected_index is None:
             else:
                 cols[j].write(row[col])
         if cols[len(df.columns)].button("Edit", key=f"edit_button_{i}"):
-            # Set the query parameter and update the URL to edit mode
-            st.set_query_params(edit=i)
-
+            st.session_state.edit_mode = True
+            st.session_state.selected_index = i
 else:
-    # Display the edit form for the selected row
-    selected_index = int(selected_index[0])  # Convert the selected index to integer
+    selected_index = st.session_state.selected_index
     st.write(f"Edit the details for: {df.at[selected_index, 'TestName']}")
     columns = df.columns.tolist()
     form_data = {}
@@ -51,9 +51,8 @@ else:
             st.session_state.df = df  # Update the session state
             df.to_csv(csv_file_path, index=False)  # Save the updated DataFrame to a CSV file
             st.success(f'Details for {df.at[selected_index, "TestName"]} have been updated.')
-            # Clear the query params to return to the main page
-            st.set_query_params()
+            st.session_state.edit_mode = False  # Exit edit mode
 
     # Add a button to go back to the main page
     if st.button("Back to Main Page"):
-        st.set_query_params()  # Clear the query params to return to the main page
+        st.session_state.edit_mode = False  # Exit edit mode
