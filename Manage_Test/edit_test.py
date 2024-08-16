@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Path to your CSV file
-csv_file_path = 'data/TestsList.csv'
+csv_file_path = 'Data/TestsList.csv'
 
 # Read the CSV file into a DataFrame
 if 'df' not in st.session_state:
