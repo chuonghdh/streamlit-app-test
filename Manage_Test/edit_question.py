@@ -46,18 +46,20 @@ def show_editable_table_with_delete(df, full_df, test_id):
     
     # Extract selected rows
     selected_rows = grid_return.get('selected_rows', [])
-    st.write("Selected Rows:", selected_rows)  # Debugging output
-
+    # Debugging output
+    # st.write("Selected Rows:", selected_rows)  
+    
     # Make the button always visible
     delete_button_visible = False
-
+    
     # Check if selected_rows is non-empty and contains valid data
-    if isinstance(selected_rows, list) and len(selected_rows) > 0:
+    if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
+        
         # Ensure the first element of selected_rows is a dictionary and contains 'WordID'
-        if isinstance(selected_rows[0], dict) and 'WordID' in selected_rows[0]:
+        if 'WordID' in selected_rows.columns:  # note selected_rows[0] or selected_rows.columns
             delete_button_visible = True  # Indicate that the delete button should be visible
 
-            word_id_to_delete = selected_rows[0]['WordID']
+            word_id_to_delete = selected_rows.iloc[0]['WordID']
             
             # Display the delete button
             if st.button("Delete Selected Word"):
@@ -69,7 +71,7 @@ def show_editable_table_with_delete(df, full_df, test_id):
                     full_df.to_csv(WORDS_CSV_FILE_PATH, index=False)
                     
                     st.success(f"Word ID {word_id_to_delete} has been deleted successfully!")
-                    st.experimental_rerun()  # Refresh the page to reflect the changes
+                    st.rerun()  # Refresh the page to reflect the changes
                 except Exception as e:
                     st.error(f"Error deleting word: {e}")
         else:
@@ -77,7 +79,11 @@ def show_editable_table_with_delete(df, full_df, test_id):
     
     # Display the delete button even if no row is selected (for testing visibility)
     if not delete_button_visible:
-        st.warning("Please select a row to enable deletion.")
+        # Using HTML to customize the warning message style
+        st.markdown(
+            "<span style='color:orange; font-size:12pt; font-style:italic;'>Please select a row to enable deletion.</span>",
+            unsafe_allow_html=True
+        )
     
     # Get the edited DataFrame after changes
     edited_df = grid_return['data']
@@ -103,8 +109,8 @@ def update_words_csv(updated_df, full_df, test_id):
 
 def insert_new_word(new_word, new_LanguageCode, new_WordPhonetic, new_WordDescription, new_WordImageLink, full_df, test_id):
     """Insert a new word into the WordsList.csv file."""
-    if not new_word or not new_LanguageCode or not new_WordPhonetic or not new_WordDescription:
-        st.error("All fields except Image Link must be filled out.")
+    if not new_word or not new_WordDescription:
+        st.error("Fields New words and Word Description must be filled out.")
         return
     
     try:
