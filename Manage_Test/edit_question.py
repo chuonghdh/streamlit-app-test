@@ -81,7 +81,7 @@ def show_editable_table_with_delete(df, full_df, test_id):
     if not delete_button_visible:
         # Using HTML to customize the warning message style
         st.markdown(
-            "<span style='color:orange; font-size:12pt; font-style:italic;'>Please select a row to enable deletion.</span>",
+            "<span style='color:gray; font-size:12pt; font-style:italic;'>Please select a row to enable deletion.</span>",
             unsafe_allow_html=True
         )
     
@@ -107,7 +107,7 @@ def update_words_csv(updated_df, full_df, test_id):
     except Exception as e:
         st.error(f"Error updating WordsList.csv: {e}")
 
-def insert_new_word(new_word, new_LanguageCode, new_WordPhonetic, new_WordDescription, new_WordImageLink, full_df, test_id):
+def insert_new_word(new_word, language_code, new_WordPhonetic, new_WordDescription, new_WordImageLink, full_df, test_id):
     """Insert a new word into the WordsList.csv file."""
     if not new_word or not new_WordDescription:
         st.error("Fields New words and Word Description must be filled out.")
@@ -122,7 +122,7 @@ def insert_new_word(new_word, new_LanguageCode, new_WordPhonetic, new_WordDescri
             'WordID': new_word_id,
             'TestID': int(test_id),
             'Word': new_word,
-            'LanguageCode': new_LanguageCode,
+            'LanguageCode': language_code,
             'WordPhonetic': new_WordPhonetic,
             'Description': new_WordDescription,
             'Image': new_WordImageLink,
@@ -141,6 +141,20 @@ def insert_new_word(new_word, new_LanguageCode, new_WordPhonetic, new_WordDescri
     except Exception as e:
         st.error(f"Error inserting new word: {e}")
 
+# Display the insert form
+def show_insert_form(language_code, full_df, test_id):     
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        new_word = st.text_input(f"New word ({language_code})*")   
+    with col2:
+        new_WordDescription = st.text_input("Word Description*")
+    with col3:
+        new_WordPhonetic = st.text_input("Phonetic or Examples")
+    with col4:
+        new_WordImageLink = st.text_input("Image Link") 
+    if st.button("Add Word"):
+        insert_new_word(new_word, language_code, new_WordPhonetic, new_WordDescription, new_WordImageLink, full_df, test_id)
+
 def show_question_editor():
     """Show the editor for a specific TestID."""
     selected_test = st.session_state.get("selected_test")
@@ -153,44 +167,47 @@ def show_question_editor():
     df_tests = read_csv_file(TESTS_CSV_FILE_PATH)
 
     # Filter the DataFrame for the selected TestID in TestsList.csv
-    if df_tests[df_tests['TestID'] == int(test_id)].empty:
+    test_info = df_tests[df_tests['TestID'] == int(test_id)]
+    if test_info.empty:
         st.write(f"No data found for TestID {test_id} in TestsList.csv")
         return
-
-    st.write(f"### Edit Words for Test ID: {test_id}")
+    
+    # Lookup the corresponding test name & TestLanguage for the selected TestID
+    language_code = test_info.iloc[0]['TestLanguage']  # 'TestsList\TestLanguage' == 'WordsList\LanguageCode' need to fix in TestsList csv file later.
+    test_name = test_info.iloc[0]['TestName']  # get the corresponding 'TestName' from TestsList
+    st.write(f"### Update words for {test_id} - {test_name} ({language_code})")
 
     # Get the filtered words data and the full DataFrame from WordsList.csv
     df_words, full_df = get_filtered_words(test_id)
 
     if df_words.empty:
-        st.error(f"No words data found for TestID {test_id} in WordsList.csv")
-        if st.button("🔙 Back to Main Page"):
+        st.error(f"No words data found for TestID {test_id} - {test_name} in WordsList.csv")
+        # Display the insert form
+        st.write("## Add a New Word")
+        show_insert_form(language_code, full_df, test_id)
+        if st.button("🔙 Back"):
             st.session_state.page = 'table'
             st.rerun()
         return
 
     # Display the insert form
-    st.write("#### Add a New Word")
-    new_word = st.text_input("New word")
-    new_LanguageCode = st.text_input("Language Code")
-    new_WordPhonetic = st.text_input("Phonetic or Examples")
-    new_WordDescription = st.text_input("Word Description")
-    new_WordImageLink = st.text_input("Image Link")
-    
-    if st.button("Add Word"):
-        insert_new_word(new_word, new_LanguageCode, new_WordPhonetic, new_WordDescription, new_WordImageLink, full_df, test_id)
+    st.write("## Add a New Word")
+    show_insert_form(language_code, full_df, test_id)
 
     # Display the editable table with delete functionality
+    st.write("## Edit Words")
     edited_df = show_editable_table_with_delete(df_words, full_df, test_id)
 
-    # Update the CSV file when the button is clicked
-    if st.button("Update"):
-        update_words_csv(edited_df, full_df, test_id)
-
-    # Add a back button to return to the main page
-    if st.button("🔙 Back to Main Page"):
-        st.session_state.page = 'table'
-        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        # Update the CSV file when the button is clicked
+        if st.button("Update"):
+            update_words_csv(edited_df, full_df, test_id)
+    with col2:
+        # Use the placeholder to insert the actual button, applying the custom CSS class
+        if st.button("🔙 Back", key="back"):
+            st.session_state.page = 'table'
+            st.rerun()
 
 # Ensure 'page' is initialized
 if "page" not in st.session_state:

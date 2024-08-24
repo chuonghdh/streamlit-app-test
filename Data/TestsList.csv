@@ -1,5 +1,4 @@
 TestID,TestName,TestDescription,TestLanguage,Image,CreatedBy,LastUpdatedBy
-0.0,demo,some sample,en,https://cdn3d.iconscout.com/3d/premium/thumb/house-6338349-5220257.png,Chuong Hoang Dai Hien,Chuong Hoang
 1.0,1.1Mestari1,Suomen mestari 1.1,fi,https://pictures.abebooks.com/isbn/9789517924375-uk.jpg,Chuong Hoang Dai Hien,Chuong Hoang Dai Hien
 2.0,1.2Mestari2,Suomen mestari 1.2,fi,https://pictures.abebooks.com/isbn/9789517924375-uk.jpg,Chuong Hoang Dai Hien,Chuong Hoang Dai Hien
 3.0,FinVerbs1, famous Finland Verbs Grp1,fi,https://www.flagsonline.it/uploads/2016-6-6/1200-0/finland.jpg,Chuong Hoang Dai Hien,Chuong Hoang Dai Hien
@@ -22,5 +21,5 @@ TestID,TestName,TestDescription,TestLanguage,Image,CreatedBy,LastUpdatedBy
 20.0,Flight to Finland,info about the trip,en,link,Chuong Hoang Dai Hien,Chuong Hoang Dai Hien
 21.0,KaluKalam-W1,vocabulary in school,fi,https://fastly.4sqi.net/img/general/200x200/G2ApXnHVIkfTanJao58tAlGqNk7BWD8V2C28T9OI0CI.jpg,Chuong Hoang Dai Hien,Chuong Hoang
 22.0,KaluKalam-W2,school vocabulary week2,fi,https://fastly.4sqi.net/img/general/200x200/G2ApXnHVIkfTanJao58tAlGqNk7BWD8V2C28T9OI0CI.jpg,Chuong Hoang Dai Hien,Chuong Hoang Dai Hien
-23.0,KaluKalam-W333,school vocabulary week3,fi,https://fastly.4sqi.net/img/general/200x200/G2ApXnHVIkfTanJao58tAlGqNk7BWD8V2C28T9OI0CI.jpg,Chuong Hoang Dai Hien,Le Nguyen
+23.0,KaluKalam-W3,school vocabulary week3,fi,https://fastly.4sqi.net/img/general/200x200/G2ApXnHVIkfTanJao58tAlGqNk7BWD8V2C28T9OI0CI.jpg,Chuong Hoang Dai Hien,Le Nguyen
 24.0,KaluKalam-W4,school vocabulary week4,fi,https://fastly.4sqi.net/img/general/200x200/G2ApXnHVIkfTanJao58tAlGqNk7BWD8V2C28T9OI0CI.jpg,Chuong Hoang Dai Hien,Chuong Hoang

@@ -16,9 +16,8 @@ def main():
             st.Page("Do_Test/your_last_tests.py", title="Your last taken tests"),
         ],
         "Manage Your Test": [
-            st.Page("Manage_Test/create_test.py", title="Create a new test"),
-            st.Page("Manage_Test/edit_test.py", title="Edit current test"),
-        ],
+            st.Page("Manage_Test/edit_test.py", title="Edit current test"), 
+        ]
     }
 
     pg = st.navigation(pages)

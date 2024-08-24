@@ -99,7 +99,7 @@ def show_test_id(test_id):
     """Display the TestID in a pop-up frame."""
     st.write(f"**TestID:** {test_id}")
 
-def main_show_test_list():
+def main():
     """Main function to display the test list page."""
     st.title("Test List")
 
@@ -110,4 +110,5 @@ def main_show_test_list():
     else:
         st.write("No data available.")
 
-main_show_test_list()
+if __name__ == '__main__':
+    main()
