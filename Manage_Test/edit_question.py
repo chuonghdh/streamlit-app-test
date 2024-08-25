@@ -175,15 +175,15 @@ def show_question_editor():
     # Lookup the corresponding test name & TestLanguage for the selected TestID
     language_code = test_info.iloc[0]['TestLanguage']  # 'TestsList\TestLanguage' == 'WordsList\LanguageCode' need to fix in TestsList csv file later.
     test_name = test_info.iloc[0]['TestName']  # get the corresponding 'TestName' from TestsList
-    st.write(f"### Update words for {test_id} - {test_name} ({language_code})")
+    st.write(f"#### *Test ID {int(test_id)} - {test_name}*")
 
     # Get the filtered words data and the full DataFrame from WordsList.csv
     df_words, full_df = get_filtered_words(test_id)
 
     if df_words.empty:
-        st.error(f"No words data found for TestID {test_id} - {test_name} in WordsList.csv")
+        st.error(f"No words data found for TestID {int(test_id)} - {test_name} in Data")
         # Display the insert form
-        st.write("## Add a New Word")
+        st.write("# Add a New Word")
         show_insert_form(language_code, full_df, test_id)
         if st.button("🔙 Back"):
             st.session_state.page = 'table'
@@ -191,11 +191,11 @@ def show_question_editor():
         return
 
     # Display the insert form
-    st.write("## Add a New Word")
+    st.write("### Add a New Word")
     show_insert_form(language_code, full_df, test_id)
 
     # Display the editable table with delete functionality
-    st.write("## Edit Words")
+    st.write("### Edit Words")
     edited_df = show_editable_table_with_delete(df_words, full_df, test_id)
 
     col1, col2 = st.columns(2)

@@ -113,12 +113,7 @@ def show_data_table():
     if df.empty:
         st.write("No tests available.")
         return
-
-    st.write("### Edit Your Tests")  # Main Page Title
-
-    # Set custom CSS for headers, row borders, and hover effects
-    set_custom_css()
-
+ 
     # Display the table header
     st.write(
         """
@@ -147,44 +142,6 @@ def show_data_table():
     if st.button('➕ Add Test'):
         st.session_state.page = 'form'
         st.rerun()
-
-def set_custom_css():
-    """Set custom CSS for wider table, row borders, and hover effects."""
-    st.markdown(
-        """
-        <style>
-        .streamlit-expanderHeader {
-            font-size: 0.2rem;
-        }
-        .block-container {
-            max-width: 900px;
-            padding: 0.2rem 0.2rem;
-        }
-        .stButton>button {
-            width: 100%;
-        }
-        .table-header {
-            display: flex;
-            background-color: #f0f0f0;
-            padding: 2px;
-            font-weight: bold;
-            border-bottom: 1px solid #ccc;
-            margin-bottom: 2px;
-        }
-        .table-row {
-            display: flex;
-            padding: 0.2px;
-            border: 1px solid lightgray;
-            margin-bottom: 1px;
-            transition: background-color 0.3s ease;
-        }
-        .table-row:hover {
-            background-color: #f0f0f0;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 def display_table_row(row_index, row, df):
     """Display a single row in the data table."""
@@ -312,6 +269,8 @@ def show_page_testlist():
         show_question_editor()
 
 # Main Page of Edit Test
+# Main Page Title
+st.title("Edit Your Tests")  
 
 if 'page' not in st.session_state:
     st.session_state.page = 'table'

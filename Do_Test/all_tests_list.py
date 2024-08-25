@@ -4,6 +4,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 import logging
+from Do_Test.define_metadata import main_define_metadata
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -57,26 +58,26 @@ def show_test_list(df):
     st.write("### Select your test")
 
     # Define custom CSS styles for minor visual tweaks
-    st.markdown("""
-        <style>
-        .stButton > button {
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 5px 10px;
-            font-size: 12px;
-            margin: 0;
-        }
-        .stButton > button:hover {
-            background-color: #45a049;
-        }
-        .image-cell img {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    # st.markdown("""
+    #     <style>
+    #     .stButton > button {
+    #         border-radius: 5px;
+    #         background-color: #4CAF50;
+    #         color: white;
+    #         padding: 5px 10px;
+    #         font-size: 12px;
+    #         margin: 0;
+    #     }
+    #     .stButton > button:hover {
+    #         background-color: #45a049;
+    #     }
+    #     .image-cell img {
+    #         display: block;
+    #         margin-left: auto;
+    #         margin-right: auto;
+    #     }
+    #     </style>
+    # """, unsafe_allow_html=True)
 
     for index, row in df.iterrows():
         cols = st.columns([1, 2, 1, 2, 1])  # Adjust column widths
@@ -93,7 +94,9 @@ def show_test_list(df):
 
         # Add button to the last column and handle click
         if cols[4].button('Do Test', key=f"button_{index}"):
-            show_test_id(row['TestID'])
+            st.session_state.selected_test = row['TestID']
+            st.session_state.page = 'prep_test'
+            st.rerun()
 
 def show_test_id(test_id):
     """Display the TestID in a pop-up frame."""
@@ -101,13 +104,22 @@ def show_test_id(test_id):
 
 def main_show_test_list():
     """Main function to display the test list page."""
-    st.title("Test List")
+    
+    if 'page' not in st.session_state:
+        st.session_state.page = 'test_list'
+    if 'selected_test' not in st.session_state:
+        st.session_state.selected_test = None
 
-    # Load and display the test list
-    df = read_csv_file(TESTS_CSV_FILE_PATH)
-    if not df.empty:
-        show_test_list(df)
-    else:
-        st.write("No data available.")
+    #"""Page routing logic."""
+    if st.session_state.page == 'test_list':
+        st.title("Test List")
+        # Load and display the test list
+        df = read_csv_file(TESTS_CSV_FILE_PATH)
+        if not df.empty:
+            show_test_list(df)
+        else:
+            st.write("No data available.")
+    elif st.session_state.page == 'prep_test':
+            main_define_metadata()
 
 main_show_test_list()

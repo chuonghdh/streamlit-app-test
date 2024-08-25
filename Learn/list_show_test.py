@@ -4,6 +4,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 import logging
+from define_metadata import main_define_metadata
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -93,7 +94,11 @@ def show_test_list(df):
 
         # Add button to the last column and handle click
         if cols[4].button('Do Test', key=f"button_{index}"):
-            show_test_id(row['TestID'])
+            #show_test_id(row['TestID'])
+            st.session_state.selected_test = row['TestID']
+            st.session_state.page = 'prep_test'
+            st.rerun()
+            #main_define_metadata()
 
 def show_test_id(test_id):
     """Display the TestID in a pop-up frame."""
@@ -101,14 +106,24 @@ def show_test_id(test_id):
 
 def main():
     """Main function to display the test list page."""
-    st.title("Test List")
+    
+    if 'page' not in st.session_state:
+        st.session_state.page = 'test_list'
+    if 'selected_test' not in st.session_state:
+        st.session_state.selected_test = None
 
-    # Load and display the test list
-    df = read_csv_file(TESTS_CSV_FILE_PATH)
-    if not df.empty:
-        show_test_list(df)
-    else:
-        st.write("No data available.")
+    #"""Page routing logic."""
+    if st.session_state.page == 'test_list':
+        st.title("Test List")
+        # Load and display the test list
+        df = read_csv_file(TESTS_CSV_FILE_PATH)
+        if not df.empty:
+            show_test_list(df)
+        else:
+            st.write("No data available.")
+    elif st.session_state.page == 'prep_test':
+            main_define_metadata()
+    
 
 if __name__ == '__main__':
     main()
