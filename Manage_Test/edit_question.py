@@ -198,16 +198,19 @@ def show_question_editor():
     st.write("### Edit Words")
     edited_df = show_editable_table_with_delete(df_words, full_df, test_id)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        # Update the CSV file when the button is clicked
-        if st.button("Update"):
-            update_words_csv(edited_df, full_df, test_id)
-    with col2:
+    #col1, col2, col3 = st.columns(3)
+    col = st.columns([1, 2, 1])
+    with col[0]:
         # Use the placeholder to insert the actual button, applying the custom CSS class
         if st.button("🔙 Back", key="back"):
             st.session_state.page = 'table'
             st.rerun()
+    with col[1]:
+        st.write(" ")
+    with col[2]:
+        # Update the CSV file when the button is clicked
+        if st.button("Update"):
+            update_words_csv(edited_df, full_df, test_id)
 
 # Ensure 'page' is initialized
 if "page" not in st.session_state:

@@ -164,12 +164,15 @@ def handle_rename_mode(row_index, row, cols):
     new_data = []
     for j, (col_name, col_value) in enumerate(row.items()):
         if col_name in ['TestName', 'TestDescription', 'Image']:
-            new_data.append(cols[j].text_input(f' ', value=col_value, key=f'{col_name}_{row_index}'))
+            new_data.append(cols[j].text_input(f' ', label_visibility='collapsed' ,value=col_value, key=f'{col_name}_{row_index}'))
         else:
             new_data.append(col_value)
-            cols[j].write(col_value)
+            if col_name == 'TestID':
+                cols[j].write(int(col_value))
+            else:    
+                cols[j].write(col_value)
 
-    done_button = cols[len(row)].button('✅ Done', key=f'done_{row_index}')
+    done_button = cols[len(row)].button('✅', help="Done", key=f'done_{row_index}')
     if done_button:
         st.session_state.rename_mode = None
         update_csv_file(row_index, new_data)
@@ -279,5 +282,3 @@ if 'selected_test' not in st.session_state:
 
 show_page_testlist()
 
-#if __name__ == '__main__':
-#    main()

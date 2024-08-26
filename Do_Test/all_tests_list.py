@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Constants for file paths
 TESTS_CSV_FILE_PATH = 'data/TestsList.csv'  # Adjust the path if necessary
 PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
-IMAGE_SIZE = 60  # Set this to the desired thumbnail size (e.g., 60 pixels)
+IMAGE_SIZE = 80  # Set this to the desired thumbnail size (e.g., 60 pixels)
 
 @st.cache_data
 def read_csv_file(filename):
@@ -57,30 +57,8 @@ def fetch_and_resize_image(url, size):
 def show_test_list(df):
     st.write("### Select your test")
 
-    # Define custom CSS styles for minor visual tweaks
-    # st.markdown("""
-    #     <style>
-    #     .stButton > button {
-    #         border-radius: 5px;
-    #         background-color: #4CAF50;
-    #         color: white;
-    #         padding: 5px 10px;
-    #         font-size: 12px;
-    #         margin: 0;
-    #     }
-    #     .stButton > button:hover {
-    #         background-color: #45a049;
-    #     }
-    #     .image-cell img {
-    #         display: block;
-    #         margin-left: auto;
-    #         margin-right: auto;
-    #     }
-    #     </style>
-    # """, unsafe_allow_html=True)
-
     for index, row in df.iterrows():
-        cols = st.columns([1, 2, 1, 2, 1])  # Adjust column widths
+        cols = st.columns([1.5, 2, 0.5, 2, 1])  # Adjust column widths
 
         # Check if the image URL is valid; if not, use the placeholder image
         image_url = row["Image"]
