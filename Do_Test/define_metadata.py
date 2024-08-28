@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import logging
 import time
+#from Do_Test.do_test import main_do_test
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -44,9 +45,13 @@ def save_to_csv(df, filepath, success_message):
 
 def main_define_metadata():
     """Show the editor for a specific TestID."""
-    selected_test = st.session_state.get("selected_test")
-    if not selected_test:
-        st.write("No TestID selected.")
+    if st.session_state.page == 'prep_test':
+        selected_test = st.session_state.get("selected_test")
+        if not selected_test:
+            st.write("No TestID selected.")
+            return
+    else: 
+        st.session_state.page == 'test_list'
         return
 
     test_id = int(selected_test)
@@ -116,14 +121,14 @@ def main_define_metadata():
     # Action buttons
     button_cols = st.columns([1, 2, 1])
     with button_cols[0]:
-        if st.button("🔙 Back"):
+        if st.button("🔙 Back", key='prep_test_back'):
             st.session_state.page = 'test_list'
             st.session_state.selected_test = None
             st.rerun()
     with button_cols[1]:
         st.write(" ")
     with button_cols[2]:
-        if st.button("Do Test"):
+        if st.button("Do Test", key='prep_test_do_test'):
             selected_user_id = df_user.loc[df_user['UserName'] == selected_user_name, 'UserID'].values[0]
             selected_class_id = df_class.loc[df_class['ClassName'] == selected_class_name, 'ClassID'].values[0]
             new_attempt_id = get_new_id(df_attempt, 'AttemptID')
@@ -140,8 +145,11 @@ def main_define_metadata():
 
             df_attempt = pd.concat([df_attempt, new_attempt_df], ignore_index=True)
             save_to_csv(df_attempt, ATTEMPTDATA_CSV_FILE_PATH, "Test attempt recorded successfully.")
-            #time.sleep(0.8)
-            #st.rerun()
+            st.session_state.page = 'do_test'
+            st.session_state.word_index = 1
+            time.sleep(0.5)
+            st.rerun()
+            
 
 # Run the main function
 main_define_metadata()

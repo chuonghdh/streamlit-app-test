@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import logging
 from Do_Test.define_metadata import main_define_metadata
+from Do_Test.do_test import main_do_test
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -99,5 +100,7 @@ def main_show_test_list():
             st.write("No data available.")
     elif st.session_state.page == 'prep_test':
             main_define_metadata()
+    elif st.session_state.page == 'do_test':
+            main_do_test()
 
 main_show_test_list()
