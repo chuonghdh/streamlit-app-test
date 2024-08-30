@@ -8,6 +8,8 @@ from PIL import Image
 import random
 from gtts import gTTS
 import tempfile
+import streamlit.components.v1 as components
+import base64
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +20,7 @@ TESTS_CSV_FILE_PATH = 'data/TestsList.csv'
 WORDS_CSV_FILE_PATH = 'data/WordsList.csv'
 ATTEMPTDATA_CSV_FILE_PATH = 'data/AttemptData.csv'
 PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
-IMAGE_SIZE = 150  # Set this to the desired thumbnail size
+IMAGE_SIZE = 120  # Set this to the desired thumbnail size
 
 st.markdown(
     """
@@ -33,6 +35,16 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Convert the sound file to base64
+def get_base64_sound(file_path):
+    with open(file_path, "rb") as sound_file:
+        data = sound_file.read()
+        return base64.b64encode(data).decode()
+
+# Convert 'beep-beep.wav' and 'cheerful.wav' files to base64 strings
+beep_sound_base64 = get_base64_sound("learn/beep-beep.wav")
+cheerful_sound_base64 = get_base64_sound("learn/cheerful.wav")
 
 @st.cache_data
 def read_csv_file(filename):
@@ -87,67 +99,217 @@ def fetch_and_resize_image(url, size):
         logger.error(f"Error processing image from {url}: {e}")
         return Image.open(PLACEHOLDER_IMAGE).resize((size, size))
 
+# Word matching function using java script to process
+def word_matching(word):
+    word_score = len(word) - word.count(" ")
+    # Create an HTML component with JavaScript to handle input, color, and deletion of text
+    components.html(
+        f"""
+        <html>
+            <head>
+                <style>
+                    /* Increase font size to 14px */
+                    body {{
+                        font-size: 18px;
+                    }}
+
+                    /* Align display area and score on the same line */
+                    #container {{
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 10px;
+                    }}
+
+                    #displayArea {{
+                        flex: 1;
+                        text-align: left;
+                    }}
+
+                    #scoreArea {{
+                        flex-shrink: 0;
+                        text-align: right;
+                        margin-left: 20px;
+                    }}
+
+                    /* Center input box and add margin to the top */
+                    #textInput {{
+                        width: 100%;
+                        margin-top: 10px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div id="container">
+                    <p id="displayArea">{''.join('_' if c == ' ' else '-' for c in word)}</p> <!-- Display underscores for spaces and dashes for other characters -->
+                    <p id="scoreArea">Score: {word_score}</p> <!-- Display the initial word score -->
+                </div>
+                <input type="text" id="textInput" placeholder="Enter some text" oninput="checkText()" />
+
+                <audio id="alarmSound" src="data:audio/wav;base64,{beep_sound_base64}" preload="auto"></audio> <!-- Beep alarm sound -->
+                <audio id="cheerfulSound" src="data:audio/wav;base64,{cheerful_sound_base64}" preload="auto"></audio> <!-- Cheerful sound -->
+
+                <script>
+                    // JavaScript variables
+                    const word = "{word}".toLowerCase(); // Convert the word to lowercase for case-insensitive comparison
+                    let wordScore = {word_score}; // Initialize wordScore with the length of the word
+                    let timer = null;
+                    let alarmPlayed = false; // To prevent multiple sound overlaps
+                    let cheerPlayed = false; // To play cheerful sound only once
+
+                    function checkText() {{
+                        // Get the value from the input field and convert it to lowercase for case-insensitive comparison
+                        var inputText = document.getElementById("textInput").value.toLowerCase();
+                        var updatedText = "";
+                        var lastIndex = 0;
+                        var allMatch = true;
+
+                        // Iterate over each character in the word
+                        for (let i = 0; i < word.length; i++) {{
+                            if (i < inputText.length) {{
+                                if (inputText[i] === word[i] && allMatch) {{
+                                    // Matching character, keep it green
+                                    updatedText += '<span style="color: green;">' + inputText[i] + '</span>';
+                                    lastIndex = i + 1;
+                                    alarmPlayed = false; // Reset alarm
+                                }} else {{
+                                    // Non-matching character, make it red, stop further matching, and play the alarm sound
+                                    updatedText += '<span style="color: red;">' + inputText[i] + '</span>';
+                                    if (!alarmPlayed) {{
+                                        document.getElementById("alarmSound").play(); // Play the alarm sound
+                                        alarmPlayed = true; // Prevent multiple plays
+                                        if (wordScore > 0) {{
+                                            wordScore--; // Deduct one point for the wrong character if score is above zero
+                                        }}
+                                    }}
+                                    allMatch = false;
+                                }}
+                            }} else {{
+                                // Display underscores for spaces and dashes for other characters
+                                updatedText += word[i] === ' ' ? '_' : '-';
+                            }}
+                        }}
+
+                        // Update the score display
+                        document.getElementById("scoreArea").innerHTML = "Score: " + wordScore;
+
+                        // Display the formatted text
+                        document.getElementById("displayArea").innerHTML = updatedText;
+
+                        // Check if the entire input matches the word
+                        if (inputText === word && !cheerPlayed) {{
+                            document.getElementById("cheerfulSound").play();
+                            cheerPlayed = true; // Play cheerful sound only once
+
+                            // Disable the input field since the input matches the word
+                            document.getElementById("textInput").disabled = true;
+                        }}
+
+                        // Clear the previous timer if it exists
+                        if (timer) {{
+                            clearTimeout(timer);
+                        }}
+
+                        // Set a new timer to remove the red characters after 0.5 seconds
+                        timer = setTimeout(function() {{
+                            // Only keep the matching part of the input text
+                            document.getElementById("textInput").value = document.getElementById("textInput").value.substring(0, lastIndex);
+
+                            // Move the cursor to the end of the input
+                            document.getElementById("textInput").focus();
+                            document.getElementById("textInput").setSelectionRange(lastIndex, lastIndex);
+                        }}, 500);
+                    }}
+                </script>
+            </body>
+        </html>
+        """,
+        height=120  # Adjust height as needed
+    )
+
+def show_result(current_row_data, img_status):
+    if img_status == True: # hide result with image
+        # Check if the image URL is valid; if not, use the placeholder image
+        image_url = current_row_data["Image"].iloc[0]
+        col1, col2 = st.columns([1,4])
+        with col1:
+            st.write(" ")
+        with col2:
+            st.image(fetch_and_resize_image(image_url if image_url else PLACEHOLDER_IMAGE, IMAGE_SIZE))
+        # image_html = f"""
+        #     <div style='display: flex; justify-content: center;'>
+        #         <img src='{image_url if image_url else PLACEHOLDER_IMAGE}' style='max-height: 94pt; width: auto;'/>
+        #     </div>
+        #     """
+        # st.markdown(image_html, unsafe_allow_html=True)
+        
+    if img_status == False: # show result 
+        st.write(" ")
+        st.subheader(f"{current_row_data['Word'].iloc[0]}")
+        word_phone = ""
+        if pd.notna(current_row_data['WordPhonetic'].iloc[0]):
+            word_phone = current_row_data['WordPhonetic'].iloc[0]
+        st.write(f" {word_phone}")
+
+def show_audio_bar(df, word, lang_code):
+    word = df['Word'].iloc[0]
+    lang_code = df['LanguageCode'].iloc[0]
+    # Generate speech
+    tts = gTTS(text = word, lang = lang_code)
+    # Save the speech to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+        tts.save(fp.name)
+        st.audio(fp.name, format="audio/mp3", autoplay=False)
+
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
     current_row_data = df[df['order']== order_number]  # -1 because order is 1-based
-    
-    col1, col2 = st.columns([8, 2])
+    num_of_problems = len(df)
+
+    col1, col2 = st.columns([4,1])
     with col1:
-        st.markdown('<div class="center-container">', unsafe_allow_html=True)
-        status_container = st.container(height=220) 
-        def update_status(new_status):
-            with status_container:
-                
-                if new_status == True:
-                    # Check if the image URL is valid; if not, use the placeholder image
-                    image_url = current_row_data["Image"].iloc[0]
-                    st.image(fetch_and_resize_image(image_url if image_url else PLACEHOLDER_IMAGE, IMAGE_SIZE))
-                if new_status == False:
-                    st.write("Show Word")
-                    st.write(f"Word: {current_row_data['Word'].iloc[0]}")
-                    st.write("Show WordPhonetic")
-                
-        # Initial status display
-        update_status(st.session_state.show_image)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.write('----------------------')
-        with st.container():
-            st.write("Show Description")
-            st.write("Show Input Textbox")
-            st.write("Show UnderLine")
-        st.write(current_row_data)
+        st.write(f"Problem {order_number}/{num_of_problems}")
     with col2:
-        st.subheader("Tools")
-        if st.button("show"):
+        if st.button("show", key="show_solution"):
             st.session_state.show_image = not st.session_state.show_image
             st.rerun()
-        st.button("hint")
-        if st.button("speak"):
-            #st.write(f"debug {current_row_data['Word'][0]}")
-            word = current_row_data['Word'].iloc[0]
-            lang_code = current_row_data['LanguageCode'].iloc[0]
-
-            # Generate speech
-            tts = gTTS(text = word, lang = lang_code)
-
-            # Save the speech to a temporary file
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
-                tts.save(fp.name)
-                st.audio(fp.name, format="audio/mp3", autoplay=True)
-    
-def footer_buttons():
-    button_cols = st.columns([1, 2, 1])
-    with button_cols[0]:
-        if st.button("🔙 Back", key="do_test_back"):
-            st.session_state.page = 'test_list'
-            st.session_state.selected_test = None
-            st.rerun()
-    with button_cols[1]:
-        st.write(" ")
-    with button_cols[2]:
-        if st.button("Submit", key="do_test_submit"):
-            st.write("submit action")
+    subincol1, subincol2 = st.columns([1,1])
+    container_style = """
+            <div style='
+            height: 235px; 
+            width:100%;
+            overflow:auto;
+            font-size:2.5em;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 1px solid lightgray; 
+            border-radius: 8px;  /* Rounded corners */
+            background-color:#D9EEE1; 
+            '>
+                <b>{}</b>
+            </div>
+            """
+    with subincol1:
+        # Use st.markdown to render the HTML content
+        st.markdown(container_style.format(current_row_data['Description'].iloc[0]), unsafe_allow_html=True)
+    with subincol2:
+        with st.container(height=235, border=1):
+            with st.container(height=126, border=False):
+                show_result(current_row_data, st.session_state.show_image)  
+            with st.container(height=62, border=False):
+                show_audio_bar(current_row_data, word = current_row_data['Word'].iloc[0], lang_code = current_row_data['LanguageCode'].iloc[0])        
+                
+    incol1, incol2 = st.columns([3,1])
+    with incol1:
+        word_matching(current_row_data['Word'].iloc[0]) 
+    with incol2:
+        # Create a button to go to the next item
+        if st.button(f'Next', disabled=(st.session_state.word_index >= num_of_problems), key="next_word"):
+            if st.session_state.word_index < num_of_problems:
+                st.session_state.word_index += 1
+                st.session_state.show_image = True
+                st.rerun()
 
 def main_do_test():
     # Handle paging displaying session
@@ -164,26 +326,14 @@ def main_do_test():
     if 'word_index' not in st.session_state:
         st.session_state.word_index = 1 
 
-    if 'show_image' not in st.session_state:
+    if 'show_image' not in st.session_state or 'show_image'==False:
         st.session_state.show_image = True
 
     # Get the filtered words data base on TestID (selected_test) from WordsList.csv
     test_id = int(selected_test)
     df_test_words = get_filtered_words(test_id)
     df_test_words = set_words_order(df_test_words, order_type = "sequence") # order_type = "sequence"|"random"
-    current_row_data = df_test_words[df_test_words['order']== st.session_state.word_index]
-    
-    st.title(f"Do Test - {test_id}")
+    st.subheader(f"Do Test - {test_id}")
     display_current_row(df_test_words,st.session_state.word_index)
-    
-    number_of_rows = len(df_test_words)
-    
-# Create a button to go to the next item
-    if st.button(f'Next', disabled=(st.session_state.word_index >= number_of_rows)):
-        if st.session_state.word_index < number_of_rows:
-            st.session_state.word_index += 1
-            st.session_state.show_image = True
-            st.rerun()
-    footer_buttons()
     
 main_do_test()

@@ -147,6 +147,7 @@ def main_define_metadata():
             save_to_csv(df_attempt, ATTEMPTDATA_CSV_FILE_PATH, "Test attempt recorded successfully.")
             st.session_state.page = 'do_test'
             st.session_state.word_index = 1
+            st.session_state.show_image = True
             time.sleep(0.5)
             st.rerun()
             

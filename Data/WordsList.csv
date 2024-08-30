@@ -398,10 +398,10 @@ WordID,TestID,Word,LanguageCode,WordPhonetic,Description,Image
 120,15,laskea,fi,,to count,
 122,15,lentää,fi,,to fly,
 124,15,auttaa,fi,,to help,
-4,1,kirjan,fi,,book,
-5,1,opiskelija,fi,,student,
-6,1,kurssilla,fi,,course,
-7,1,yliopisto,fi,,university,
+4,1,kirjan,fi,,book,https://cdn3d.iconscout.com/3d/premium/thumb/house-6338349-5220257.png
+5,1,opiskelija,fi,,student,https://cdn3d.iconscout.com/3d/premium/thumb/house-6338349-5220257.png
+6,1,kurssilla,fi,,course,https://cdn3d.iconscout.com/3d/premium/thumb/house-6338349-5220257.png
+7,1,yliopisto,fi,,university,https://cdn3d.iconscout.com/3d/premium/thumb/house-6338349-5220257.png
 8,1,tyoskennella,fi,työskennellä,to work,
 9,1,toissa,fi,töissä,work at,
 10,1,kauppa,fi,,the store,
