@@ -1,7 +1,8 @@
 streamlit
 pandas
 numpy
-
+PIL
+gTTS
 gdown
 openpyxl
 google-auth
