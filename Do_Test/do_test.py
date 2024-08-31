@@ -259,7 +259,15 @@ def show_audio_bar(df, word, lang_code):
     # Save the speech to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
         tts.save(fp.name)
-        st.audio(fp.name, format="audio/mp3", autoplay=False)
+        #st.audio(fp.name, format="audio/mp3", autoplay=False)
+        #---testblock---
+        temp_file_name = fp.name
+    # Add a button for mobile compatibility
+    if st.button("Play Audio"):
+        # Streamlit audio playback
+        st.audio(temp_file_name, format="audio/mp3", autoplay=False)
+    # Ensure temporary file is closed and can be accessed
+    st.write(f"Audio file ready for playback: {temp_file_name}")
 
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
