@@ -16,10 +16,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants for file paths
-TESTS_CSV_FILE_PATH = 'data/TestsList.csv'
-WORDS_CSV_FILE_PATH = 'data/WordsList.csv'
-ATTEMPTDATA_CSV_FILE_PATH = 'data/AttemptData.csv'
-PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
+TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
+WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'
+ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
+PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 120  # Set this to the desired thumbnail size
 
 st.markdown(
@@ -43,8 +43,8 @@ def get_base64_sound(file_path):
         return base64.b64encode(data).decode()
 
 # Convert 'beep-beep.wav' and 'cheerful.wav' files to base64 strings
-beep_sound_base64 = get_base64_sound("learn/beep-beep.wav")
-cheerful_sound_base64 = get_base64_sound("learn/cheerful.wav")
+beep_sound_base64 = get_base64_sound("Learn/beep-beep.wav")
+cheerful_sound_base64 = get_base64_sound("Learn/cheerful.wav")
 
 @st.cache_data
 def read_csv_file(filename):
