@@ -59,7 +59,7 @@ def show_test_list(df):
     st.write("### Select your test")
 
     for index, row in df.iterrows():
-        cols = st.columns([1.5, 2, 0.5, 2, 1])  # Adjust column widths
+        cols = st.columns([1.5, 2, 2, 1])  # Adjust column widths
 
         # Check if the image URL is valid; if not, use the placeholder image
         image_url = row["Image"]
@@ -67,12 +67,12 @@ def show_test_list(df):
 
         # Display row data with improved layout
         cols[0].image(img)
-        cols[1].write(row["TestName"])
-        cols[2].write(row["TestLanguage"])
-        cols[3].write(row["TestDescription"])
+        cols[1].write(f"{row['TestName']} ({row['TestLanguage']})")
+        #cols[2].write(row["TestLanguage"])
+        cols[2].write(row["TestDescription"])
 
         # Add button to the last column and handle click
-        if cols[4].button('Do Test', key=f"button_{index}"):
+        if cols[3].button('Do Test', key=f"button_{index}"):
             st.session_state.selected_test = row['TestID']
             st.session_state.page = 'prep_test'
             st.rerun()

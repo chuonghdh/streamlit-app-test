@@ -269,7 +269,7 @@ def show_audio_bar(df, word, lang_code):
 
     # Create the HTML element for the audio
     audio_html = f"""
-        <audio controls autoplay>
+        <audio controls>
             <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
