@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
 WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'
 ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
-PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
+PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 120  # Set this to the desired thumbnail size
 
 st.markdown(
