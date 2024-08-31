@@ -70,7 +70,7 @@ def main():
 
     # Display the selected page
     if "page" in st.session_state:
-        # st.write(f"You selected: {st.session_state.page}") #IMPORTANT FOR DEBUG
+        st.write(f"Selected Page: {st.session_state.page}") #IMPORTANT FOR DEBUG
         # Open the file with the correct encoding (usually UTF-8)
         with open(st.session_state.url, 'r', encoding='utf-8') as f:
             code = f.read()
