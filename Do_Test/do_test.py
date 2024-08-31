@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
 WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'
 ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
-PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
+PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
 IMAGE_SIZE = 120  # Set this to the desired thumbnail size
 
 st.markdown(
@@ -260,14 +260,23 @@ def show_audio_bar(df, word, lang_code):
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
         tts.save(fp.name)
         #st.audio(fp.name, format="audio/mp3", autoplay=False)
-        #---testblock---
         temp_file_name = fp.name
-    # Add a button for mobile compatibility
-    if st.button("Play Audio"):
-        # Streamlit audio playback
-        st.audio(temp_file_name, format="audio/mp3", autoplay=False)
-    # Ensure temporary file is closed and can be accessed
-    st.write(f"Audio file ready for playback: {temp_file_name}")
+
+    # Read the file and encode it as base64
+    with open(temp_file_name, "rb") as audio_file:
+        audio_bytes = audio_file.read()
+        encoded_audio = base64.b64encode(audio_bytes).decode()
+
+    # Create the HTML element for the audio
+    audio_html = f"""
+        <audio controls autoplay>
+            <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+    """
+
+    # Display the audio in Streamlit
+    st.markdown(audio_html, unsafe_allow_html=True)
 
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
