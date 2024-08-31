@@ -2,7 +2,7 @@ streamlit
 pandas
 numpy
 gTTS
-st_aggrid
+streamlit-aggrid
 gdown
 openpyxl
 google-auth
