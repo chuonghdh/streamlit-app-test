@@ -19,7 +19,7 @@ def cache_clear():
 
 # CSV-related Functions
 @st.cache_data
-def read_csv_file(filename=CSV_FILE_PATH):
+def read_csv_file(filename):
     """Read data from the CSV file."""
     try:
         if os.path.exists(filename):
@@ -109,7 +109,7 @@ def display_image_or_text(link, column, size=IMAGE_SIZE):
 # UI Functions
 def show_data_table():
     """Display the data table with rename, delete, and edit question options."""
-    df = read_csv_file()
+    df = read_csv_file(CSV_FILE_PATH)
     if df.empty:
         st.write("No tests available.")
         return
@@ -228,7 +228,7 @@ def add_test_form():
     st.write("### Add New Entry")
     form = st.form(key='add_entry_form')
 
-    df = read_csv_file()
+    df = read_csv_file(CSV_FILE_PATH)
 
     if df.empty:
         new_test_id = 1  # Start TestID from 1 if the dataframe is empty
