@@ -18,7 +18,7 @@ def cache_clear():
     st.cache_data.clear()
 
 # CSV-related Functions
-@st.cache_data
+#@st.cache_data
 def read_csv_file(filename):
     """Read data from the CSV file."""
     try:
@@ -110,6 +110,7 @@ def display_image_or_text(link, column, size=IMAGE_SIZE):
 def show_data_table():
     """Display the data table with rename, delete, and edit question options."""
     df = read_csv_file(CSV_FILE_PATH)
+    st.write("#debug:" df["TestID"])
     if df.empty:
         st.write("No tests available.")
         return
