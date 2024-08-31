@@ -9,8 +9,8 @@ def get_base64_sound(file_path):
         return base64.b64encode(data).decode()
 
 # Convert 'beep-beep.wav' and 'cheerful.wav' files to base64 strings
-beep_sound_base64 = get_base64_sound("learn/beep-beep.wav")
-cheerful_sound_base64 = get_base64_sound("learn/cheerful.wav")
+beep_sound_base64 = get_base64_sound("Learn/beep-beep.wav")
+cheerful_sound_base64 = get_base64_sound("Learn/cheerful.wav")
 
 # Python variable 'word'
 word = "How are you"

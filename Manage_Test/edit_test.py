@@ -8,8 +8,8 @@ from PIL import ImageOps, Image
 from Manage_Test.edit_question import show_question_editor
 
 # Constants
-CSV_FILE_PATH = 'data\TestsList.csv'
-PLACEHOLDER_IMAGE = "data\image\placeholder_image.png"
+CSV_FILE_PATH = 'Data\TestsList.csv'
+PLACEHOLDER_IMAGE = "Data\image\placeholder_image.png"
 IMAGE_SIZE = 60
 
 # Utility Functions

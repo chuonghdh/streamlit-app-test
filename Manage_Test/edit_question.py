@@ -3,8 +3,8 @@ import pandas as pd
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 # Constants
-TESTS_CSV_FILE_PATH = 'data/TestsList.csv'  # Adjust the path if necessary
-WORDS_CSV_FILE_PATH = 'data/WordsList.csv'  # Adjust the path if necessary
+TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'  # Adjust the path if necessary
+WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'  # Adjust the path if necessary
 
 def read_csv_file(filename):
     """Read data from a CSV file."""

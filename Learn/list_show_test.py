@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants for file paths
-TESTS_CSV_FILE_PATH = 'data/TestsList.csv'  # Adjust the path if necessary
-PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
+TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'  # Adjust the path if necessary
+PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 60  # Set this to the desired thumbnail size (e.g., 60 pixels)
 
 @st.cache_data
