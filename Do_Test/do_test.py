@@ -43,8 +43,8 @@ def get_base64_sound(file_path):
         return base64.b64encode(data).decode()
 
 # Convert 'beep-beep.wav' and 'cheerful.wav' files to base64 strings
-beep_sound_base64 = get_base64_sound("Learn/beep-beep.wav")
-cheerful_sound_base64 = get_base64_sound("Learn/cheerful.wav")
+beep_sound_base64 = get_base64_sound("Data/sound/beep-beep.wav") #Kalam requirement "Data/sound/beep-beep2.wav"
+cheerful_sound_base64 = get_base64_sound("Data/sound/cheerful.wav")
 
 @st.cache_data
 def read_csv_file(filename):
@@ -342,12 +342,22 @@ def display_current_row(df, order_number):
         #word_matching(current_row_data['Word'].iloc[0]) 
         st.write(" ")
     with incol2:
-        # Create a button to go to the next item
-        if st.button(f'Next', disabled=(st.session_state.word_index >= num_of_problems), key="next_word"):
+        # Determine the label and action based on the current index
+        if st.session_state.word_index < num_of_problems:
+            button_label = "Next"
+        else:
+            button_label = "Submit"
+
+        if st.button(button_label, key="next_word"):
             if st.session_state.word_index < num_of_problems:
                 st.session_state.word_index += 1
                 st.session_state.show_image = True
-                st.rerun()
+            else:
+                st.session_state.word_index = 1
+                st.session_state.show_image = True
+                st.session_state.page = 'test_list'
+                st.session_state.selected_test = None
+            st.rerun()
 
 def main_do_test():
     # Handle paging displaying session
