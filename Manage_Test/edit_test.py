@@ -20,14 +20,21 @@ def cache_clear():
 # CSV-related Functions
 #@st.cache_data
 def read_csv_file(filename):
-    """Read data from the CSV file."""
+    """Read data from a CSV file."""
     try:
-        if os.path.exists(filename):
-            return pd.read_csv(filename)
-        else:
-            return pd.DataFrame()  # Return an empty DataFrame if the file doesn't exist
+        df = pd.read_csv(filename)
+        return df
+    except FileNotFoundError:
+        st.error(f"File not found: {filename}")
+        return pd.DataFrame()
+    except pd.errors.EmptyDataError:
+        st.error(f"No data: The file {filename} is empty.")
+        return pd.DataFrame()
+    except pd.errors.ParserError:
+        st.error(f"Parsing error: The file {filename} is corrupt or has an invalid format.")
+        return pd.DataFrame()
     except Exception as e:
-        st.error(f"Error reading CSV file: {e}")
+        st.error(f"Unexpected error: {e}")
         return pd.DataFrame()
 
 def save_to_csv(data, filename=CSV_FILE_PATH):
