@@ -12,11 +12,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants for file paths
-TESTS_CSV_FILE_PATH = 'data/TestsList.csv'
-USERDATA_CSV_FILE_PATH = 'data/UserData.csv'
-CLASSDATA_CSV_FILE_PATH = 'data/ClassData.csv'
-ATTEMPTDATA_CSV_FILE_PATH = 'data/AttemptData.csv'
-PLACEHOLDER_IMAGE = "data/image/placeholder_image.png"
+TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
+USERDATA_CSV_FILE_PATH = 'Data/UserData.csv'
+CLASSDATA_CSV_FILE_PATH = 'Data/ClassData.csv'
+ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
+PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 140  # Set this to the desired thumbnail size
 
 def read_csv_file(filename):
