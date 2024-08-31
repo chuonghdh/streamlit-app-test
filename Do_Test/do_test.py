@@ -118,24 +118,40 @@ def word_matching(word):
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        margin-bottom: 10px;
+                        margin-bottom: 0px;
+                        margin-left: 0px;
                     }}
 
                     #displayArea {{
                         flex: 1;
                         text-align: left;
+                        margin-left: 5px;
+                        font-family: 'Source Sans Pro', sans-serif;
+                        font-size: 25px;
+                        color: #ffa500;
                     }}
 
                     #scoreArea {{
                         flex-shrink: 0;
                         text-align: right;
                         margin-left: 20px;
+                        font-family: 'Source Sans Pro', sans-serif;
+                        font-size: 15px;
+                        color: #474a5c;
+                        line-height: 1.6;
                     }}
 
                     /* Center input box and add margin to the top */
                     #textInput {{
                         width: 100%;
-                        margin-top: 10px;
+                        height: 30px;
+                        margin-top: 2px;
+                        text-align: left;
+                        font-family: 'Source Sans Pro', sans-serif;
+                        font-size: 20px;
+                        border: 2px solid #ffa500; 
+                        background-color: #ffa500;
+                        border-radius: 5px;  /* Rounded corners */
                     }}
                 </style>
             </head>
@@ -224,7 +240,7 @@ def word_matching(word):
             </body>
         </html>
         """,
-        height=120  # Adjust height as needed
+        height=130  # Adjust height as needed
     )
 
 def show_result(current_row_data, img_status):
@@ -267,9 +283,9 @@ def show_audio_bar(df, word, lang_code):
         audio_bytes = audio_file.read()
         encoded_audio = base64.b64encode(audio_bytes).decode()
 
-    # Create the HTML element for the audio
+    # Create an HTML element for the audio with reduced width
     audio_html = f"""
-        <audio controls>
+        <audio controls style="width: 250px;">
             <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
@@ -290,10 +306,18 @@ def display_current_row(df, order_number):
         if st.button("show", key="show_solution"):
             st.session_state.show_image = not st.session_state.show_image
             st.rerun()
-    subincol1, subincol2 = st.columns([1,1])
-    container_style = """
+    subincol1, subincol2 = st.columns([1,2])
+    
+    with subincol1:
+        with st.container(height=235, border=1):
+            with st.container(height=126, border=False):
+                show_result(current_row_data, st.session_state.show_image)  
+            with st.container(height=62, border=False):
+                show_audio_bar(current_row_data, word = current_row_data['Word'].iloc[0], lang_code = current_row_data['LanguageCode'].iloc[0])        
+    with subincol2:
+        container_style = """
             <div style='
-            height: 235px; 
+            height: 105px; 
             width:100%;
             overflow:auto;
             font-size:2.5em;
@@ -307,19 +331,16 @@ def display_current_row(df, order_number):
                 <b>{}</b>
             </div>
             """
-    with subincol1:
         # Use st.markdown to render the HTML content
-        st.markdown(container_style.format(current_row_data['Description'].iloc[0]), unsafe_allow_html=True)
-    with subincol2:
-        with st.container(height=235, border=1):
-            with st.container(height=126, border=False):
-                show_result(current_row_data, st.session_state.show_image)  
-            with st.container(height=62, border=False):
-                show_audio_bar(current_row_data, word = current_row_data['Word'].iloc[0], lang_code = current_row_data['LanguageCode'].iloc[0])        
-                
+        st.markdown(container_style.format(
+            current_row_data['Description'].iloc[0]
+            ), unsafe_allow_html=True)
+        word_matching(current_row_data['Word'].iloc[0])            
+    
     incol1, incol2 = st.columns([3,1])
     with incol1:
-        word_matching(current_row_data['Word'].iloc[0]) 
+        #word_matching(current_row_data['Word'].iloc[0]) 
+        st.write(" ")
     with incol2:
         # Create a button to go to the next item
         if st.button(f'Next', disabled=(st.session_state.word_index >= num_of_problems), key="next_word"):
