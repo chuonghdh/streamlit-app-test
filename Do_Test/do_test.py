@@ -20,7 +20,7 @@ TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
 WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'
 ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
 PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
-IMAGE_SIZE = 120  # Set this to the desired thumbnail size
+IMAGE_SIZE = 100  # Set this to the desired thumbnail size
 
 st.markdown(
     """
@@ -128,7 +128,7 @@ def word_matching(word):
                         margin-left: 5px;
                         font-family: 'Source Sans Pro', sans-serif;
                         font-size: 25px;
-                        color: #ffa500;
+                        color: #39e75f;
                     }}
 
                     #scoreArea {{
@@ -149,8 +149,8 @@ def word_matching(word):
                         text-align: left;
                         font-family: 'Source Sans Pro', sans-serif;
                         font-size: 20px;
-                        border: 2px solid #ffa500; 
-                        background-color: #ffa500;
+                        border: 2px solid #39e75f; 
+                        background-color: #39e75f;
                         border-radius: 5px;  /* Rounded corners */
                     }}
                 </style>
@@ -252,13 +252,7 @@ def show_result(current_row_data, img_status):
             st.write(" ")
         with col2:
             st.image(fetch_and_resize_image(image_url if image_url else PLACEHOLDER_IMAGE, IMAGE_SIZE))
-        # image_html = f"""
-        #     <div style='display: flex; justify-content: center;'>
-        #         <img src='{image_url if image_url else PLACEHOLDER_IMAGE}' style='max-height: 94pt; width: auto;'/>
-        #     </div>
-        #     """
-        # st.markdown(image_html, unsafe_allow_html=True)
-        
+                
     if img_status == False: # show result 
         st.write(" ")
         st.subheader(f"{current_row_data['Word'].iloc[0]}")
@@ -267,9 +261,7 @@ def show_result(current_row_data, img_status):
             word_phone = current_row_data['WordPhonetic'].iloc[0]
         st.write(f" {word_phone}")
 
-def show_audio_bar(df, word, lang_code):
-    word = df['Word'].iloc[0]
-    lang_code = df['LanguageCode'].iloc[0]
+def show_audio_bar(word, lang_code):
     # Generate speech
     tts = gTTS(text = word, lang = lang_code)
     # Save the speech to a temporary file
@@ -285,39 +277,41 @@ def show_audio_bar(df, word, lang_code):
 
     # Create an HTML element for the audio with reduced width
     audio_html = f"""
-        <audio controls style="width: 250px;">
+        <audio controls autoplay style="width: 100px; height:40px">
             <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
     """
 
     # Display the audio in Streamlit
-    st.markdown(audio_html, unsafe_allow_html=True)
+    try:
+        st.markdown(audio_html, unsafe_allow_html=True)
+    except Exception as e:
+        st.markdown(audio_html, unsafe_allow_html=True) 
 
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
-    current_row_data = df[df['order']== order_number]  # -1 because order is 1-based
     num_of_problems = len(df)
-
-    col1, col2 = st.columns([4,1])
+    current_row_data = df[df['order']== order_number]  # -1 because order is 1-based
+    current_word = current_row_data['Word'].iloc[0]
+    current_langcode = current_row_data['LanguageCode'].iloc[0]
+    st.write(f"Problem {order_number}/{num_of_problems}")
+    col1, col2 = st.columns([1,2])
     with col1:
-        st.write(f"Problem {order_number}/{num_of_problems}")
-    with col2:
-        if st.button("show", key="show_solution"):
-            st.session_state.show_image = not st.session_state.show_image
-            st.rerun()
-    subincol1, subincol2 = st.columns([1,2])
-    
-    with subincol1:
-        with st.container(height=235, border=1):
-            with st.container(height=126, border=False):
+        with st.container(border=1):
+            with st.container(border=False):
                 show_result(current_row_data, st.session_state.show_image)  
-            with st.container(height=62, border=False):
-                show_audio_bar(current_row_data, word = current_row_data['Word'].iloc[0], lang_code = current_row_data['LanguageCode'].iloc[0])        
-    with subincol2:
+            with st.container(border=False):
+                incol1, incol2 = st.columns([1,1])
+                with incol1:
+                    show_audio_bar(current_word, current_langcode)    
+                with incol2:
+                    if st.button("show", key="show_solution"):
+                        st.session_state.show_image = not st.session_state.show_image
+                        #st.rerun()    
+    with col2:
         container_style = """
             <div style='
-            height: 105px; 
             width:100%;
             overflow:auto;
             font-size:2.5em;
