@@ -39,6 +39,7 @@ st.write('This is a page to download all data from host')
 
 data = read_csv_file(TESTS_UNLOAD_CSV_FILE_PATH)
 st.write("Columns in the file:", data.columns.values)
+st.write(data)
 
 # Set the directory where your CSV files are stored
 folder_path = "Data"  # Change this to your CSV directory path
