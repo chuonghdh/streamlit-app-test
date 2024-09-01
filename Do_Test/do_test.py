@@ -300,15 +300,15 @@ def display_current_row(df, order_number):
     with col1:
         with st.container(border=1):
             with st.container(border=False):
-                show_result(current_row_data, st.session_state.show_image)  
+                show_result(current_row_data, st.session_state.show_image)
             with st.container(border=False):
-                incol1, incol2 = st.columns([1,1])
+                incol1, incol2 = st.columns(2)
                 with incol1:
                     show_audio_bar(current_word, current_langcode)    
                 with incol2:
                     if st.button("show", key="show_solution"):
                         st.session_state.show_image = not st.session_state.show_image
-                        #st.rerun()    
+                        #st.rerun()   
     with col2:
         container_style = """
             <div style='

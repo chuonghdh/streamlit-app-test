@@ -46,10 +46,10 @@ def main():
     pages = {
         "Do Your Test": [
             ("List of all tests", "Do_Test/all_tests_list.py"),
-            ("Your last taken tests", "Do_Test/your_last_tests.py"),
         ],
         "Manage Your Test": [
             ("Edit current test", "Manage_Test/edit_test.py"),
+            ("Backup tests data", "Manage_Test/backup_tests.py"),
         ]
     }
 
