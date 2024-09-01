@@ -279,9 +279,9 @@ def show_audio_bar(word, lang_code):
         with open(temp_file_name, "rb") as audio_file:
             audio_bytes = audio_file.read()
             encoded_audio = base64.b64encode(audio_bytes).decode()
-    # Create an HTML element for the audio with reduced width
+    # Create an HTML element for the audio with reduced width # add `autoplay` after `controls` for auto run.
     audio_html = f"""
-        <audio controls autoplay style="width: 100px; height:40px">
+        <audio controls  style="width: 100px; height:40px">
             <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
