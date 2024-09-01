@@ -34,7 +34,7 @@ def read_csv_file(filename):
         return pd.DataFrame()
     
 
-st.title('Back up data HAHAHA')
+st.title('Back up data')
 st.write('This is a page to download all data from host')
 
 data = read_csv_file(TESTS_UNLOAD_CSV_FILE_PATH)
