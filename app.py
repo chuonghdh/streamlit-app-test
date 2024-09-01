@@ -59,13 +59,13 @@ def main():
         st.session_state.page = 'test_list'
         st.session_state.url = 'Do_Test/all_tests_list.py'
         st.rerun()  # Reload the page to reflect the new selection
-    if st.sidebar.button('Your last taken tests'):
-        st.session_state.page = 'form'
-        st.session_state.url = 'Do_Test/your_last_tests.py'
-        st.rerun()  # Reload the page to reflect the new selection
     if st.sidebar.button('Edit current test'):
         st.session_state.page = 'table'
         st.session_state.url = 'Manage_Test/edit_test.py'
+        st.rerun()  # Reload the page to reflect the new selection
+    if st.sidebar.button('Backup tests data'):
+        st.session_state.page = 'form'
+        st.session_state.url = 'Manage_Test/backup_tests.py'
         st.rerun()  # Reload the page to reflect the new selection
 
     # Display the selected page
