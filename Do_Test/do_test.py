@@ -46,7 +46,7 @@ def get_base64_sound(file_path):
 beep_sound_base64 = get_base64_sound("Data/sound/beep-beep.wav") #Kalam requirement "Data/sound/beep-beep2.wav"
 cheerful_sound_base64 = get_base64_sound("Data/sound/cheerful.wav")
 
-@st.cache_data
+#@st.cache_data
 def read_csv_file(filename):
     """Read data from a CSV file."""
     try:
@@ -271,10 +271,14 @@ def show_audio_bar(word, lang_code):
         temp_file_name = fp.name
 
     # Read the file and encode it as base64
-    with open(temp_file_name, "rb") as audio_file:
-        audio_bytes = audio_file.read()
-        encoded_audio = base64.b64encode(audio_bytes).decode()
-
+    try:
+        with open(temp_file_name, "rb") as audio_file:
+            audio_bytes = audio_file.read()
+            encoded_audio = base64.b64encode(audio_bytes).decode()
+    except Exception as e:
+        with open(temp_file_name, "rb") as audio_file:
+            audio_bytes = audio_file.read()
+            encoded_audio = base64.b64encode(audio_bytes).decode()
     # Create an HTML element for the audio with reduced width
     audio_html = f"""
         <audio controls autoplay style="width: 100px; height:40px">
@@ -284,11 +288,8 @@ def show_audio_bar(word, lang_code):
     """
 
     # Display the audio in Streamlit
-    try:
-        st.markdown(audio_html, unsafe_allow_html=True)
-    except Exception as e:
-        st.markdown(audio_html, unsafe_allow_html=True) 
-
+    st.markdown(audio_html, unsafe_allow_html=True)
+    
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
     num_of_problems = len(df)
