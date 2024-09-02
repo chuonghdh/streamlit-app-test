@@ -281,7 +281,7 @@ def show_audio_bar(word, lang_code):
             encoded_audio = base64.b64encode(audio_bytes).decode()
     # Create an HTML element for the audio with reduced width # add `autoplay` after `controls` for auto run.
     audio_html = f"""
-        <audio controls  style="width: 100px; height:40px">
+        <audio controls style="width: 100px; height:40px">
             <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
@@ -309,7 +309,7 @@ def display_current_row(df, order_number):
                 with incol2:
                     if st.button("show", key="show_solution"):
                         st.session_state.show_image = not st.session_state.show_image
-                        #st.rerun()   
+                        st.rerun()   
     with col2:
         container_style = """
             <div style='
