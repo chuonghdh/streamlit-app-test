@@ -14,7 +14,7 @@ st.write('This is a page to download all data from host')
 folder_path = "prd_Data"  # Change this to your CSV directory path
 
 # Loop through each file in the directory
-if os.path.isdir(folder_path):  # Check if the folder exists and is a directory
+if os.path.exists(folder_path):  # Check if the folder exists and is a directory
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
             file_path = os.path.join(folder_path, filename)
