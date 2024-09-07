@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 import requests
 from PIL import Image
 from io import BytesIO
@@ -21,6 +22,11 @@ WORDS_CSV_FILE_PATH = 'Data/WordsList.csv'
 ATTEMPTDATA_CSV_FILE_PATH = 'Data/AttemptData.csv'
 PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 100  # Set this to the desired thumbnail size
+
+# File path for the CSV in the Streamlit environment
+prd_TestsList_path = 'prd_Data/prd_TestsListData.csv'
+prd_WordsList_path = 'prd_Data/prd_WordsListData.csv'
+prd_AttemptData_path = 'prd_Data/prd_AttemptData.csv'
 
 st.markdown(
     """
@@ -47,25 +53,29 @@ beep_sound_base64 = get_base64_sound("Data/sound/beep-beep.wav") #Kalam requirem
 cheerful_sound_base64 = get_base64_sound("Data/sound/cheerful.wav")
 
 #@st.cache_data
-def read_csv_file(filename):
+def read_csv_file(repo_path, prd_path):
     """Read data from a CSV file."""
     try:
-        df = pd.read_csv(filename)
-        logger.info(f"Successfully loaded data from {filename}")
+        if os.path.exists(prd_path):
+            df = pd.read_csv(prd_path)
+            #st.info("Data loaded from local storage.")
+        else:
+            # Initial load from a repository, as a fallback (if needed)
+            df = pd.read_csv(repo_path)  # Replace with your default CSV
+            df.to_csv(prd_path, index=False)  # Save to local environment
+            #st.info("Data loaded from repository and saved to local storage.")
         return df
     except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        st.error(f"Error loading file: {filename} - {str(e)}")
-        logger.error(f"Error loading file: {filename} - {str(e)}")
+        st.error(f"Error loading file: {repo_path} - {str(e)}")
         return pd.DataFrame()
     except Exception as e:
         st.error(f"Unexpected error: {e}")
-        logger.exception(f"Unexpected error occurred while reading the CSV file.")
         return pd.DataFrame()
 
 def get_filtered_words(test_id):
     """Read and filter the WordsList.csv file based on the TestID."""
     try:
-        df_words = read_csv_file(WORDS_CSV_FILE_PATH)
+        df_words = read_csv_file(WORDS_CSV_FILE_PATH, prd_WordsList_path)
         filtered_words = df_words[df_words['TestID'] == int(test_id)]
         return filtered_words  # Return the filtered DataFrame
     except Exception as e:
