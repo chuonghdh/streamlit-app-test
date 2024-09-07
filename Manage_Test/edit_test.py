@@ -82,10 +82,14 @@ def show_data_table():
 
     for i, row in df.iterrows():
         display_table_row(i, row, df)
-
-    if st.button('➕ Add Test'):
-        st.session_state.page = 'form'
-        st.rerun()
+    col1, col2 = st.columns([1,1])
+    with col1:
+        if st.button('➕ Add Test'):
+            st.session_state.page = 'form'
+            st.rerun()
+    with col2:
+        if st.button('⬆️ Upload Test'):
+            st.warning("Upload Test Function!!!")
 
 def display_table_row(row_index, row, df):
     """Display a single row in the data table."""
@@ -169,7 +173,7 @@ def handle_normal_mode(row_index, row, cols):
 
 def add_test_form():
     """Create and handle the add test form."""
-    st.write("### Add New Entry")
+    st.write("### Add New Test")
     form = st.form(key='add_entry_form')
 
     df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
@@ -185,7 +189,7 @@ def add_test_form():
     form_data = {col: form.text_input(f'Enter the {col}:') for col in df.columns if col != 'TestID'}
 
     submit, cancel = form.columns(2)
-    if submit.form_submit_button(label='Add Entry'):
+    if submit.form_submit_button(label='Add New Test'):
         form_data['TestID'] = str(new_test_id)
         new_entry = {col: [form_data[col]] for col in df.columns}
         cm.save_to_csv(data=new_entry, repo_path=cm.TESTS_CSV_FILE_PATH ,prd_path=cm.prd_TestsList_path)
