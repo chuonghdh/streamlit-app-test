@@ -1,19 +1,20 @@
-import os
-import requests
 import streamlit as st
 import pandas as pd
+import os
+import requests
+import common as cm
 from io import BytesIO
 from PIL import ImageOps, Image
 
 from Manage_Test.edit_question import show_question_editor
 
 # Constants
-TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
+#TESTS_CSV_FILE_PATH = 'Data/TestsList.csv'
 PLACEHOLDER_IMAGE = "Data/image/placeholder_image.png"
 IMAGE_SIZE = 60
 
 # File path for the CSV in the Streamlit environment
-prd_TestsList_path = 'prd_Data/prd_TestsListData.csv'
+#prd_TestsList_path = 'prd_Data/prd_TestsListData.csv'
 
 # Utility Functions
 def cache_clear():
@@ -22,31 +23,31 @@ def cache_clear():
 
 # CSV-related Functions
 #@st.cache_data
-def read_csv_file(repo_path, prd_path):
-    """Read data from a CSV file."""
-    try:
-        if os.path.exists(prd_path):
-            df = pd.read_csv(prd_path)
-            #st.info("Data loaded from local storage.")
-        else:
-            # Initial load from a repository, as a fallback (if needed)
-            df = pd.read_csv(repo_path)  # Replace with your default CSV
-            df.to_csv(prd_path, index=False)  # Save to local environment
-            #st.info("Data loaded from repository and saved to local storage.")
-        return df
-    except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        st.error(f"Error loading file: {repo_path} - {str(e)}")
-        return pd.DataFrame()
-    except Exception as e:
-        st.error(f"Unexpected error: {e}")
-        return pd.DataFrame()
+# def read_csv_file(repo_path, prd_path):
+#     """Read data from a CSV file."""
+#     try:
+#         if os.path.exists(prd_path):
+#             df = pd.read_csv(prd_path)
+#             #st.info("Data loaded from local storage.")
+#         else:
+#             # Initial load from a repository, as a fallback (if needed)
+#             df = pd.read_csv(repo_path)  # Replace with your default CSV
+#             df.to_csv(prd_path, index=False)  # Save to local environment
+#             #st.info("Data loaded from repository and saved to local storage.")
+#         return df
+#     except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+#         st.error(f"Error loading file: {repo_path} - {str(e)}")
+#         return pd.DataFrame()
+#     except Exception as e:
+#         st.error(f"Unexpected error: {e}")
+#         return pd.DataFrame()
 
-def save_to_csv(data, filename=prd_TestsList_path):
+def save_to_csv(data, filename=cm.prd_TestsList_path):
     """Save data to the CSV file."""
     try:
         new_df = pd.DataFrame(data)
         if os.path.exists(filename):
-            df = read_csv_file(TESTS_CSV_FILE_PATH, filename)
+            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
             df = pd.concat([df, new_df], ignore_index=True)
         else:
             df = new_df
@@ -56,11 +57,11 @@ def save_to_csv(data, filename=prd_TestsList_path):
     except Exception as e:
         st.error(f"Error saving data to CSV: {e}")
 
-def delete_from_csv(row_index, filename=prd_TestsList_path):
+def delete_from_csv(row_index, filename=cm.prd_TestsList_path):
     """Delete a row from the CSV file."""
     try:
         if os.path.exists(filename):
-            df = read_csv_file(TESTS_CSV_FILE_PATH, filename)
+            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
             df = df.drop(index=row_index)
             df.to_csv(filename, index=False)
             cache_clear()
@@ -68,11 +69,11 @@ def delete_from_csv(row_index, filename=prd_TestsList_path):
     except Exception as e:
         st.error(f"Error deleting row from CSV: {e}")
 
-def update_csv_file(row_index, new_data, filename=prd_TestsList_path):
+def update_csv_file(row_index, new_data, filename=cm.prd_TestsList_path):
     """Update a row in the CSV file."""
     try:
         if os.path.exists(filename):
-            df = read_csv_file(TESTS_CSV_FILE_PATH, filename)
+            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
             df.loc[row_index] = new_data
             df.to_csv(filename, index=False)
             cache_clear()
@@ -120,7 +121,7 @@ def display_image_or_text(link, column, size=IMAGE_SIZE):
 # UI Functions
 def show_data_table():
     """Display the data table with rename, delete, and edit question options."""
-    df = read_csv_file(TESTS_CSV_FILE_PATH, prd_TestsList_path)
+    df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
     if df.empty:
         st.write("No tests available.")
         return
@@ -239,7 +240,7 @@ def add_test_form():
     st.write("### Add New Entry")
     form = st.form(key='add_entry_form')
 
-    df = read_csv_file(TESTS_CSV_FILE_PATH, prd_TestsList_path)
+    df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
 
     if df.empty:
         new_test_id = 1  # Start TestID from 1 if the dataframe is empty
