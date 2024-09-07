@@ -17,9 +17,9 @@ IMAGE_SIZE = 60
 #prd_TestsList_path = 'prd_Data/prd_TestsListData.csv'
 
 # Utility Functions
-def cache_clear():
-    """Clear Streamlit cache."""
-    st.cache_data.clear()
+# def cache_clear():
+#     """Clear Streamlit cache."""
+#     st.cache_data.clear()
 
 # CSV-related Functions
 #@st.cache_data
@@ -42,44 +42,44 @@ def cache_clear():
 #         st.error(f"Unexpected error: {e}")
 #         return pd.DataFrame()
 
-def save_to_csv(data, filename=cm.prd_TestsList_path):
-    """Save data to the CSV file."""
-    try:
-        new_df = pd.DataFrame(data)
-        if os.path.exists(filename):
-            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
-            df = pd.concat([df, new_df], ignore_index=True)
-        else:
-            df = new_df
-        df.to_csv(filename, index=False)
-        cache_clear()
-        st.success("Data saved successfully.")
-    except Exception as e:
-        st.error(f"Error saving data to CSV: {e}")
+# def save_to_csv(data, repo_path, prd_path):
+#     """Save data to the CSV file."""
+#     try:
+#         new_df = pd.DataFrame(data)
+#         if os.path.exists(prd_path):
+#             df = cm.read_csv_file(repo_path, prd_path)
+#             df = pd.concat([df, new_df], ignore_index=True)
+#         else:
+#             df = new_df
+#         df.to_csv(prd_path, index=False)
+#         cache_clear()
+#         st.success("Data saved successfully.")
+#     except Exception as e:
+#         st.error(f"Error saving data to CSV: {e}")
 
-def delete_from_csv(row_index, filename=cm.prd_TestsList_path):
-    """Delete a row from the CSV file."""
-    try:
-        if os.path.exists(filename):
-            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
-            df = df.drop(index=row_index)
-            df.to_csv(filename, index=False)
-            cache_clear()
-            st.success("Row deleted successfully.")
-    except Exception as e:
-        st.error(f"Error deleting row from CSV: {e}")
+# def delete_from_csv(row_index, repo_path, prd_path):
+#     """Delete a row from the CSV file."""
+#     try:
+#         if os.path.exists(prd_path):
+#             df = cm.read_csv_file(repo_path , prd_path)
+#             df = df.drop(index=row_index)
+#             df.to_csv(prd_path, index=False)
+#             cache_clear()
+#             st.success("Row deleted successfully.")
+#     except Exception as e:
+#         st.error(f"Error deleting row from CSV: {e}")
 
-def update_csv_file(row_index, new_data, filename=cm.prd_TestsList_path):
-    """Update a row in the CSV file."""
-    try:
-        if os.path.exists(filename):
-            df = cm.read_csv_file(cm.TESTS_CSV_FILE_PATH, filename)
-            df.loc[row_index] = new_data
-            df.to_csv(filename, index=False)
-            cache_clear()
-            st.success("Data updated successfully.")
-    except Exception as e:
-        st.error(f"Error updating CSV file: {e}")
+# def update_to_csv(row_index, new_data, repo_path, prd_path):
+#     """Update a row in the CSV file."""
+#     try:
+#         if os.path.exists(prd_path):
+#             df = cm.read_csv_file(repo_path, prd_path)
+#             df.loc[row_index] = new_data
+#             df.to_csv(prd_path, index=False)
+#             cache_clear()
+#             st.success("Data updated successfully.")
+#     except Exception as e:
+#         st.error(f"Error updating CSV file: {e}")
 
 # Image-related Functions
 @st.cache_data
@@ -187,7 +187,7 @@ def handle_rename_mode(row_index, row, cols):
     done_button = cols[len(row)].button('✅', help="Done", key=f'done_{row_index}')
     if done_button:
         st.session_state.rename_mode = None
-        update_csv_file(row_index, new_data)
+        cm.update_to_csv(row_index, new_data, cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
         st.rerun()
 
 def handle_normal_mode(row_index, row, cols):
@@ -232,7 +232,7 @@ def handle_normal_mode(row_index, row, cols):
         st.rerun()
 
     if delete_button:
-        delete_from_csv(row_index)
+        cm.delete_from_csv(row_index, cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
         st.rerun() 
 
 def add_test_form():
@@ -256,7 +256,7 @@ def add_test_form():
     if submit.form_submit_button(label='Add Entry'):
         form_data['TestID'] = str(new_test_id)
         new_entry = {col: [form_data[col]] for col in df.columns}
-        save_to_csv(new_entry)
+        cm.save_to_csv(new_entry, cm.TESTS_CSV_FILE_PATH ,cm.prd_TestsList_path)
         st.session_state.page = 'table'
         st.rerun()
 
