@@ -73,6 +73,14 @@ def read_csv_file(repo_path, prd_path):
         st.error(f"Unexpected error: {e}")
         return pd.DataFrame()
 
+def initialize_folder(folder):
+    # Directory path
+    directory_path = folder
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
 def initialize_data():
     # Load CSV data
     df_test = read_csv_file(TESTS_CSV_FILE_PATH, prd_TestsList_path)
@@ -86,6 +94,7 @@ def initialize_data():
 
 def main():
 
+    initialize_folder('prd_Data')
     initialize_data()
     set_custom_css()
     
