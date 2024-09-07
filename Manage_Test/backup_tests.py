@@ -7,6 +7,21 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def print_dir():
+    # Get the current working directory
+    current_dir = os.getcwd()
+
+    # List all items in the current directory
+    items_in_dir = os.listdir(current_dir)
+
+    # Filter out only directories
+    directories = [item for item in items_in_dir if os.path.isdir(os.path.join(current_dir, item))]
+
+    # Print the directories using Streamlit
+    st.write(f"Directories in {current_dir}:")
+    for directory in directories:
+        st.write(directory)
+
 st.title('Back up data')
 st.write('This is a page to download all data from host')
 
@@ -15,6 +30,7 @@ folder_path = "prd_Data"  # Change this to your CSV directory path
 
 # Loop through each file in the directory
 if os.path.exists(folder_path):  # Check if the folder exists and is a directory
+    print_dir()
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
             file_path = os.path.join(folder_path, filename)
