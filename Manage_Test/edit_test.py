@@ -187,7 +187,7 @@ def handle_rename_mode(row_index, row, cols):
     done_button = cols[len(row)].button('✅', help="Done", key=f'done_{row_index}')
     if done_button:
         st.session_state.rename_mode = None
-        cm.update_to_csv(row_index, new_data, cm.TESTS_CSV_FILE_PATH, cm.prd_TestsList_path)
+        cm.update_to_csv(row_index = row_index, new_data = new_data, repo_path = cm.TESTS_CSV_FILE_PATH, prd_path = cm.prd_TestsList_path)
         st.rerun()
 
 def handle_normal_mode(row_index, row, cols):
