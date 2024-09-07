@@ -30,14 +30,16 @@ folder_path = "prd_Data"  # Change this to your CSV directory path
 
 # Loop through each file in the directory
 if os.path.exists(folder_path):  # Check if the folder exists and is a directory
-    #print_dir()
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
             file_path = os.path.join(folder_path, filename)
 
-            # Read the file contents
-            with open(file_path, "rb") as file:
-                file_bytes = file.read()
+            # Read the file contents with UTF-8 BOM encoding
+            with open(file_path, "r", encoding="utf-8-sig") as file:
+                file_content = file.read()
+
+            # Convert the content back to bytes for the download button
+            file_bytes = file_content.encode("utf-8-sig")
 
             # Create a download button for each file
             st.download_button(
