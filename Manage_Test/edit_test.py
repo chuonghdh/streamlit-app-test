@@ -5,6 +5,7 @@ import requests
 import common as cm
 from io import BytesIO
 from PIL import ImageOps, Image
+from Manage_Test import upload_test as up
 
 from Manage_Test.edit_question import show_question_editor
 
@@ -90,6 +91,8 @@ def show_data_table():
     with col2:
         if st.button('⬆️ Upload Test'):
             st.warning("Upload Test Function!!!")
+            st.session_state.page = 'upload_page'
+            st.rerun()
 
 def display_table_row(row_index, row, df):
     """Display a single row in the data table."""
@@ -218,6 +221,8 @@ def show_page_testlist():
     elif st.session_state.page == 'edit_question':
         #edit_questions_page()
         show_question_editor()
+    elif st.session_state.page == 'upload_page':
+        up.show_upload_page()
 
 # Main Page of Edit Test
 # Main Page Title
