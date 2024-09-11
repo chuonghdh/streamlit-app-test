@@ -11,6 +11,7 @@ from gtts import gTTS
 import tempfile
 import streamlit.components.v1 as components
 import base64
+import pyperclip
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -229,6 +230,8 @@ def word_matching(word):
 
                             // Disable the input field since the input matches the word
                             document.getElementById("textInput").disabled = true;
+
+                            navigator.clipboard.writeText(wordScore)
                         }}
 
                         // Clear the previous timer if it exists
@@ -253,17 +256,17 @@ def word_matching(word):
         height=130  # Adjust height as needed
     )
 
-def show_result(current_row_data, img_status):
-    if img_status == True: # hide result with image
+def show_result(current_row_data):
+    tab1, tab2 = st.tabs(["Image", "Result"])
+    with tab1:
         # Check if the image URL is valid; if not, use the placeholder image
         image_url = current_row_data["Image"].iloc[0]
-        col1, col2 = st.columns([1,4])
+        col1,col2 = st.columns([1,4])
         with col1:
             st.write(" ")
         with col2:
             st.image(fetch_and_resize_image(image_url if image_url else PLACEHOLDER_IMAGE, IMAGE_SIZE))
-                
-    if img_status == False: # show result 
+    with tab2:           
         st.write(" ")
         st.subheader(f"{current_row_data['Word'].iloc[0]}")
         word_phone = ""
@@ -271,55 +274,40 @@ def show_result(current_row_data, img_status):
             word_phone = current_row_data['WordPhonetic'].iloc[0]
         st.write(f" {word_phone}")
 
-def show_audio_bar(word, lang_code):
-    # Generate speech
-    tts = gTTS(text = word, lang = lang_code)
-    # Save the speech to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+def gen_audio(word, lang_code):
+    tts = gTTS(text = word, lang = lang_code) # Generate speech
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp: # Save the speech to a temporary file
         tts.save(fp.name)
-        #st.audio(fp.name, format="audio/mp3", autoplay=False)
-        temp_file_name = fp.name
+    return fp.name
 
-    # Read the file and encode it as base64
-    try:
-        with open(temp_file_name, "rb") as audio_file:
-            audio_bytes = audio_file.read()
-            encoded_audio = base64.b64encode(audio_bytes).decode()
-    except Exception as e:
-        with open(temp_file_name, "rb") as audio_file:
-            audio_bytes = audio_file.read()
-            encoded_audio = base64.b64encode(audio_bytes).decode()
-    # Create an HTML element for the audio with reduced width # add `autoplay` after `controls` for auto run.
-    audio_html = f"""
-        <audio controls style="width: 100px; height:40px">
-            <source src="data:audio/mp3;base64,{encoded_audio}" type="audio/mp3">
-            Your browser does not support the audio element.
-        </audio>
-    """
+def get_score():
+    clipboard_value = pyperclip.paste()  # Get the clipboard value
+    try:     # Try to convert the clipboard value to a float
+        score = float(clipboard_value)
+    except ValueError:
+        score = -1
+    pyperclip.copy('')  # Clears the clipboard content
+    return score
 
-    # Display the audio in Streamlit
-    st.markdown(audio_html, unsafe_allow_html=True)
-    
+def update_test_result_df(df, word_index, score):
+    df.loc[df['order'] == word_index, ['Score', 'Complete']] = [score, 'Y']
+    return df
+
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
     num_of_problems = len(df)
     current_row_data = df[df['order']== order_number]  # -1 because order is 1-based
     current_word = current_row_data['Word'].iloc[0]
     current_langcode = current_row_data['LanguageCode'].iloc[0]
+    st.session_state.word_audio = gen_audio(current_word, current_langcode)
+    
     st.write(f"Problem {order_number}/{num_of_problems}")
     col1, col2 = st.columns([1,2])
     with col1:
         with st.container(border=1):
-            with st.container(border=False):
-                show_result(current_row_data, st.session_state.show_image)
-            with st.container(border=False):
-                incol1, incol2 = st.columns(2)
-                with incol1:
-                    show_audio_bar(current_word, current_langcode)    
-                with incol2:
-                    if st.button("show", key="show_solution"):
-                        st.session_state.show_image = not st.session_state.show_image
-                        st.rerun()   
+            show_result(current_row_data)
+            st.audio(st.session_state.word_audio, format="audio/mp3")
+                 
     with col2:
         container_style = """
             <div style='
@@ -354,15 +342,29 @@ def display_current_row(df, order_number):
             button_label = "Submit"
 
         if st.button(button_label, key="next_word"):
-            if st.session_state.word_index < num_of_problems:
-                st.session_state.word_index += 1
-                st.session_state.show_image = True
+            score = get_score()
+            if score >= 0:
+                st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index, score)
+                if st.session_state.word_index < num_of_problems:
+                    st.session_state.word_index += 1
+                else:
+                    st.session_state.word_index = 1
+                    st.session_state.page = 'result_page'
+                    st.session_state.selected_test = None
+                st.rerun()
             else:
-                st.session_state.word_index = 1
-                st.session_state.show_image = True
-                st.session_state.page = 'test_list'
-                st.session_state.selected_test = None
-            st.rerun()
+                st.warning("you need complete the word")
+
+def init_test_result_df(df_test_words):
+    df = pd.DataFrame({
+        'order': df_test_words['order'],
+        'WordID': df_test_words['WordID'],
+        'Word': df_test_words['Word'],
+        'MaxScore': df_test_words['Word'].apply(lambda x: len(x.replace(" ", ""))),
+        'Score': 0,
+        'Complete': 'N'
+    })
+    return df
 
 def main_do_test():
     # Handle paging displaying session
@@ -379,13 +381,14 @@ def main_do_test():
     if 'word_index' not in st.session_state:
         st.session_state.word_index = 1 
 
-    if 'show_image' not in st.session_state or 'show_image'==False:
-        st.session_state.show_image = True
-
     # Get the filtered words data base on TestID (selected_test) from WordsList.csv
     test_id = int(selected_test)
     df_test_words = get_filtered_words(test_id)
     df_test_words = set_words_order(df_test_words, order_type = "sequence") # order_type = "sequence"|"random"
+    
+    if 'test_result' not in st.session_state or st.session_state.test_result is None:
+        st.session_state.test_result = init_test_result_df(df_test_words)
+    
     st.subheader(f"Do Test - {test_id}")
     display_current_row(df_test_words,st.session_state.word_index)
     

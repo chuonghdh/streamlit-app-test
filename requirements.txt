@@ -6,3 +6,4 @@ streamlit-aggrid
 gdown
 openpyxl
 chardet
+pyperclip

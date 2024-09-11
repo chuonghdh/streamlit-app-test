@@ -7,6 +7,7 @@ from io import BytesIO
 import logging
 from Do_Test.define_metadata import main_define_metadata
 from Do_Test.do_test import main_do_test
+from Do_Test.result_page import main_result_page
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -102,5 +103,7 @@ def main_show_test_list():
             main_define_metadata()
     elif st.session_state.page == 'do_test':
             main_do_test()
+    elif st.session_state.page == 'result_page':
+            main_result_page()        
 
 main_show_test_list()
