@@ -312,8 +312,8 @@ def display_current_row(df, order_number):
         with st.container(border=1):
             show_result(current_row_data)
             # Display a button for user interaction
-            if st.button("Play Audio"):
-                st.audio(st.session_state.word_audio, format="audio/mp3")
+            #if st.button("Play Audio"):
+            st.audio(st.session_state.word_audio, format="audio/mp3")
                  
     with col2:
         container_style = """
