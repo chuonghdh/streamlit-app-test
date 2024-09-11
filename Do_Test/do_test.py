@@ -12,6 +12,7 @@ import tempfile
 import streamlit.components.v1 as components
 import base64
 import pyperclip
+import io
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -276,9 +277,13 @@ def show_result(current_row_data):
 
 def gen_audio(word, lang_code):
     tts = gTTS(text = word, lang = lang_code) # Generate speech
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp: # Save the speech to a temporary file
-        tts.save(fp.name)
-    return fp.name
+    #with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp: # Save the speech to a temporary file
+    ##   tts.save(fp.name)
+    #return fp.name
+    audio_buffer = io.BytesIO()
+    tts.save(audio_buffer)
+    audio_buffer.seek(0)
+    return audio_buffer
 
 def get_score():
     clipboard_value = pyperclip.paste()  # Get the clipboard value
@@ -306,7 +311,9 @@ def display_current_row(df, order_number):
     with col1:
         with st.container(border=1):
             show_result(current_row_data)
-            st.audio(st.session_state.word_audio, format="audio/mp3")
+            # Display a button for user interaction
+            if st.button("Play Audio"):
+                st.audio(st.session_state.word_audio, format="audio/mp3")
                  
     with col2:
         container_style = """
