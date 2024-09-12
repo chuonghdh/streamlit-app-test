@@ -327,9 +327,9 @@ def display_current_row(df, order_number):
                     audio {
                         width: 100%;
                         max-height: 40px;
-                        max-width: 300px; /* Adjust the max-width as needed */
+                        /*max-width: 300px;  Adjust the max-width as needed */
                         margin: 0 auto; /*Center the audio player */
-                        display: inline;
+                        display: block;
                     }
                     </style>
                     """, 
