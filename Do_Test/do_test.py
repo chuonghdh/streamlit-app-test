@@ -311,26 +311,40 @@ def display_current_row(df, order_number):
     current_word = current_row_data['Word'].iloc[0]
     current_langcode = current_row_data['LanguageCode'].iloc[0]
     st.session_state.word_audio = gen_audio(current_word, current_langcode)
-
-    
     
     st.write(f"Problem {order_number}/{num_of_problems}")
     col1, col2 = st.columns([1,2])
     with col1:
         with st.container(border=1):
             show_result(current_row_data)
-            # Display a button for user interaction
+            #Display a button for user interaction
             
             if st.button("Play Audio"):
+                # Custom CSS to resize the audio player
+                st.markdown(
+                    """
+                    <style>
+                    audio {
+                        width: 100%;
+                        max-height: 40px;
+                        max-width: 300px; /* Adjust the max-width as needed */
+                        margin: 0 auto; /*Center the audio player */
+                        display: inline;
+                    }
+                    </style>
+                    """, 
+                    unsafe_allow_html=True
+                )
                  # Create the HTML5 audio player using base64-encoded audio from session state
                 audio_html = f"""
-                    <audio controls>
+                    <audio controls autoplay>
                     <source src="data:audio/mp3;base64,{st.session_state.word_audio}" type="audio/mp3">
                     Your browser does not support the audio element.
                     </audio>
                     """
                 # Display the HTML5 audio player
                 st.markdown(audio_html, unsafe_allow_html=True)
+            
                  
     with col2:
         container_style = """
