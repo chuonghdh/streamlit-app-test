@@ -278,12 +278,12 @@ def show_result(current_row_data):
 def gen_audio(word, lang_code):
     tts = gTTS(text = word, lang = lang_code) # Generate speech
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp: # Save the speech to a temporary file
-    ##   tts.save(fp.name)
-    #return fp.name
-    #audio_buffer = io.BytesIO()
         tts.save(fp.name)
-    #audio_buffer.seek(0)
     return fp.name
+    # audio_buffer = io.BytesIO()
+    # tts.save(audio_buffer)
+    # audio_buffer.seek(0)
+    # return audio_buffer
 
 def get_score():
     clipboard_value = pyperclip.paste()  # Get the clipboard value
