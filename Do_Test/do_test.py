@@ -284,7 +284,12 @@ def gen_audio(word, lang_code):
     audio_fp = io.BytesIO()  # Create an in-memory byte stream
     tts.write_to_fp(audio_fp)  # Write audio to the stream
     audio_fp.seek(0)  # Move the pointer to the start of the stream
-    return audio_fp
+
+    # Encode audio data to base64
+    audio_bytes = audio_fp.read()
+    audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+    
+    return audio_b64
 
 def get_score():
     clipboard_value = pyperclip.paste()  # Get the clipboard value
@@ -306,6 +311,8 @@ def display_current_row(df, order_number):
     current_word = current_row_data['Word'].iloc[0]
     current_langcode = current_row_data['LanguageCode'].iloc[0]
     st.session_state.word_audio = gen_audio(current_word, current_langcode)
+
+    
     
     st.write(f"Problem {order_number}/{num_of_problems}")
     col1, col2 = st.columns([1,2])
@@ -313,8 +320,17 @@ def display_current_row(df, order_number):
         with st.container(border=1):
             show_result(current_row_data)
             # Display a button for user interaction
-            #if st.button("Play Audio"):
-            st.audio(st.session_state.word_audio, format="audio/mp3")
+            
+            if st.button("Play Audio"):
+                 # Create the HTML5 audio player using base64-encoded audio from session state
+                audio_html = f"""
+                    <audio controls>
+                    <source src="data:audio/mp3;base64,{st.session_state.word_audio}" type="audio/mp3">
+                    Your browser does not support the audio element.
+                    </audio>
+                    """
+                # Display the HTML5 audio player
+                st.markdown(audio_html, unsafe_allow_html=True)
                  
     with col2:
         container_style = """

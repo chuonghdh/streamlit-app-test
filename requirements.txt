@@ -7,3 +7,5 @@ gdown
 openpyxl
 chardet
 pyperclip
+pydub
+io
