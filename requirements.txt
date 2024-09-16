@@ -9,3 +9,6 @@ chardet
 pyperclip
 #pydub
 #io
+
+#streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore')", key="WORD_SCORE1")
+#streamlit_js_eval(js_expressions="sessionStorage.clear();")

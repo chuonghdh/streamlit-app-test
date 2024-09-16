@@ -10,9 +10,13 @@ import random
 from gtts import gTTS
 import tempfile
 import streamlit.components.v1 as components
+from streamlit_js_eval import streamlit_js_eval
+from streamlit_js import st_js
 import base64
 import pyperclip
 import io
+import json
+import time
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -181,6 +185,7 @@ def word_matching(word):
                     // JavaScript variables
                     const word = "{word}".toLowerCase(); // Convert the word to lowercase for case-insensitive comparison
                     let wordScore = {word_score}; // Initialize wordScore with the length of the word
+                    //sessionStorage.setItem('wordScore', 0);
                     let timer = null;
                     let alarmPlayed = false; // To prevent multiple sound overlaps
                     let cheerPlayed = false; // To play cheerful sound only once
@@ -214,13 +219,13 @@ def word_matching(word):
                                 }}
                             }} else {{
                                 // Display underscores for spaces and dashes for other characters
-                                updatedText += word[i] === ' ' ? '_' : '-';
+                                updatedText += word[i] === ' ' ? '_' : '-'; 
                             }}
                         }}
 
                         // Update the score display
                         document.getElementById("scoreArea").innerHTML = "Score: " + wordScore;
-
+                        
                         // Display the formatted text
                         document.getElementById("displayArea").innerHTML = updatedText;
 
@@ -232,7 +237,13 @@ def word_matching(word):
                             // Disable the input field since the input matches the word
                             document.getElementById("textInput").disabled = true;
 
-                            navigator.clipboard.writeText(wordScore)
+                            //navigator.clipboard.writeText(wordScore)
+                            sessionStorage.setItem('wordScore', wordScore);
+                            
+                            
+                            // Print the wordScore to the console for debugging
+                            console.log('wordScore:', wordScore);
+                            console.log("wordScore from sessionStorage:", sessionStorage.getItem('wordScore'));
                         }}
 
                         // Clear the previous timer if it exists
@@ -250,12 +261,16 @@ def word_matching(word):
                             document.getElementById("textInput").setSelectionRange(lastIndex, lastIndex);
                         }}, 500);
                     }}
+                    function getSessionStorageValue() {{
+                        return sessionStorage.getItem('wordScore');
+                    }}
                 </script>
             </body>
         </html>
         """,
         height=130  # Adjust height as needed
-    )
+    )   
+
 
 def show_result(current_row_data):
     tab1, tab2 = st.tabs(["Image", "Result"])
@@ -292,8 +307,9 @@ def gen_audio(word, lang_code):
     return audio_b64
 
 def get_score():
-    clipboard_value = pyperclip.paste()  # Get the clipboard value
-    try:     # Try to convert the clipboard value to a float
+    clipboard_value = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore')", key="WORD_SCORE")#pyperclip.paste()   Get the clipboard value
+    st.write(type(clipboard_value))
+    try:     # Try to convert the clipboard value to a float 
         score = float(clipboard_value)
     except ValueError:
         score = -1
@@ -307,7 +323,7 @@ def update_test_result_df(df, word_index, score):
 # Define a function to display data of the current row
 def display_current_row(df, order_number):
     num_of_problems = len(df)
-    current_row_data = df[df['order']== order_number]  # -1 because order is 1-based
+    current_row_data = df[df['order']== order_number]  
     current_word = current_row_data['Word'].iloc[0]
     current_langcode = current_row_data['LanguageCode'].iloc[0]
     st.session_state.word_audio = gen_audio(current_word, current_langcode)
@@ -344,8 +360,7 @@ def display_current_row(df, order_number):
                     """
                 # Display the HTML5 audio player
                 st.markdown(audio_html, unsafe_allow_html=True)
-            
-                 
+              
     with col2:
         container_style = """
             <div style='
@@ -366,27 +381,31 @@ def display_current_row(df, order_number):
         st.markdown(container_style.format(
             current_row_data['Description'].iloc[0]
             ), unsafe_allow_html=True)
-        word_matching(current_row_data['Word'].iloc[0])            
+        word_matching(current_row_data['Word'].iloc[0])  
     
     incol1, incol2 = st.columns([3,1])
-    with incol1:
-        #word_matching(current_row_data['Word'].iloc[0]) 
+    with incol1:    
         st.write(" ")
     with incol2:
         # Determine the label and action based on the current index
         if st.session_state.word_index < num_of_problems:
-            button_label = "Next"
+            button_label = "Next"  
         else:
             button_label = "Submit"
-
+        #time.sleep(0.1)
+        score = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore')", key="WORD_SCORE1")          
+        streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', '0');")
         if st.button(button_label, key="next_word"):
-            score = get_score()
-            if score >= 0:
-                st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index, score)
+            if score is None:
+                st.warning("you need complete the word")
+                st.session_state.word_index += 1
+                st.rerun()
+            elif float(score) >= 0:
+                st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index-1, score)
                 if st.session_state.word_index < num_of_problems:
                     st.session_state.word_index += 1
                 else:
-                    st.session_state.word_index = 1
+                    #st.session_state.word_index = 1
                     st.session_state.page = 'result_page'
                     st.session_state.selected_test = None
                 st.rerun()
@@ -428,6 +447,7 @@ def main_do_test():
         st.session_state.test_result = init_test_result_df(df_test_words)
     
     st.subheader(f"Do Test - {test_id}")
-    display_current_row(df_test_words,st.session_state.word_index)
-    
+    display_current_row(df_test_words,st.session_state.word_index)        
+    #streamlit_js_eval(js_expressions="sessionStorage.clear();")
+
 main_do_test()
