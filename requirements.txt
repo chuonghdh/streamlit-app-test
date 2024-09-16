@@ -8,7 +8,6 @@ openpyxl
 chardet
 pyperclip
 streamlit-js-eval
-streamit-js
 #pydub
 #io
 
