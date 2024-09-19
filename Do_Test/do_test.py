@@ -381,7 +381,7 @@ def display_current_row(df, order_number):
     if temp != -1 and temp is not None:
         st.session_state.last_score = float(temp)
         st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index-1, st.session_state.last_score)
-    st.caption(temp)
+    #st.caption(temp)
     #streamlit_js_eval(js_expressions="sessionStorage.clear();", key="clear")
     streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', -1);", key="clear1")
     incol1, incol2 = st.columns([3,1])
@@ -409,6 +409,7 @@ def init_test_result_df(df_test_words):
         'order': df_test_words['order'],
         'WordID': df_test_words['WordID'],
         'Word': df_test_words['Word'],
+        'Description': df_test_words['Description'],
         'MaxScore': df_test_words['Word'].apply(lambda x: len(x.replace(" ", ""))),
         'Score': -1,
         'Complete': 'N'
