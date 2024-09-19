@@ -57,7 +57,7 @@ def get_base64_sound(file_path):
 beep_sound_base64 = get_base64_sound("Data/sound/beep-beep.wav") #Kalam requirement "Data/sound/beep-beep2.wav"
 cheerful_sound_base64 = get_base64_sound("Data/sound/cheerful.wav")
 
-#@st.cache_data
+@st.cache_data
 def read_csv_file(repo_path, prd_path):
     """Read data from a CSV file."""
     try:
@@ -115,7 +115,7 @@ def fetch_and_resize_image(url, size):
         return Image.open(PLACEHOLDER_IMAGE).resize((size, size))
 
 # Word matching function using java script to process
-def word_matching(word):
+def word_matching(word, tid):
     word_score = len(word) - word.count(" ")
     # Create an HTML component with JavaScript to handle input, color, and deletion of text
     components.html(
@@ -184,7 +184,9 @@ def word_matching(word):
                     // JavaScript variables
                     const word = "{word}".toLowerCase(); // Convert the word to lowercase for case-insensitive comparison
                     let wordScore = {word_score}; // Initialize wordScore with the length of the word
-                    //sessionStorage.setItem('wordScore', 0);
+                    //initialize wordScore in sessionStorate = -1 as alabel of not yet done
+                    //sessionStorage.setItem('wordScore', -1);
+                    local_tid = "{tid}";
                     let timer = null;
                     let alarmPlayed = false; // To prevent multiple sound overlaps
                     let cheerPlayed = false; // To play cheerful sound only once
@@ -281,7 +283,8 @@ def show_result(current_row_data):
             st.write(" ")
         with col2:
             st.image(fetch_and_resize_image(image_url if image_url else PLACEHOLDER_IMAGE, IMAGE_SIZE))
-    with tab2:           
+            #t = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore');", key = "Get_Score2")         
+    with tab2:  
         st.write(" ")
         st.subheader(f"{current_row_data['Word'].iloc[0]}")
         word_phone = ""
@@ -305,18 +308,11 @@ def gen_audio(word, lang_code):
     
     return audio_b64
 
-def get_score():
-    clipboard_value = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore')", key="WORD_SCORE")#pyperclip.paste()   Get the clipboard value
-    st.write(type(clipboard_value))
-    try:     # Try to convert the clipboard value to a float 
-        score = float(clipboard_value)
-    except ValueError:
-        score = -1
-    pyperclip.copy('')  # Clears the clipboard content
-    return score
-
 def update_test_result_df(df, word_index, score):
-    df.loc[df['order'] == word_index, ['Score', 'Complete']] = [score, 'Y']
+    if score >= 0:
+        df.loc[df['order'] == word_index, ['Score', 'Complete']] = [score, 'Y']
+    else:
+        df.loc[df['order'] == word_index, ['Score', 'Complete']] = [-1, 'N']
     return df
 
 # Define a function to display data of the current row
@@ -332,8 +328,7 @@ def display_current_row(df, order_number):
     with col1:
         with st.container(border=1):
             show_result(current_row_data)
-            #Display a button for user interaction
-            
+            #Display a button for trigger Audio play
             if st.button("Play Audio"):
                 # Custom CSS to resize the audio player
                 st.markdown(
@@ -350,7 +345,7 @@ def display_current_row(df, order_number):
                     """, 
                     unsafe_allow_html=True
                 )
-                 # Create the HTML5 audio player using base64-encoded audio from session state
+                # Create the HTML5 audio player using base64-encoded audio from session state
                 audio_html = f"""
                     <audio controls autoplay>
                     <source src="data:audio/mp3;base64,{st.session_state.word_audio}" type="audio/mp3">
@@ -380,8 +375,15 @@ def display_current_row(df, order_number):
         st.markdown(container_style.format(
             current_row_data['Description'].iloc[0]
             ), unsafe_allow_html=True)
-        word_matching(current_row_data['Word'].iloc[0])  
+        word_matching(current_row_data['Word'].iloc[0], st.session_state.tid)  
     
+    temp = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore');", key = "Get_Score3")
+    if temp != -1 and temp is not None:
+        st.session_state.last_score = float(temp)
+        st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index-1, st.session_state.last_score)
+    st.caption(temp)
+    #streamlit_js_eval(js_expressions="sessionStorage.clear();", key="clear")
+    streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', -1);", key="clear1")
     incol1, incol2 = st.columns([3,1])
     with incol1:    
         st.write(" ")
@@ -391,25 +393,16 @@ def display_current_row(df, order_number):
             button_label = "Next"  
         else:
             button_label = "Submit"
-        #time.sleep(0.1)
-        score = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore')", key="WORD_SCORE1")          
-        streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', '0');")
         if st.button(button_label, key="next_word"):
-            if score is None:
-                st.warning("you need complete the word")
+            if st.session_state.word_index < num_of_problems:
                 st.session_state.word_index += 1
+                st.session_state.last_score = None
                 st.rerun()
-            elif float(score) >= 0:
-                st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index-1, score)
-                if st.session_state.word_index < num_of_problems:
-                    st.session_state.word_index += 1
-                else:
-                    #st.session_state.word_index = 1
-                    st.session_state.page = 'result_page'
-                    st.session_state.selected_test = None
+            if st.session_state.word_index == num_of_problems:
+                st.session_state.page = "result_page"
                 st.rerun()
-            else:
-                st.warning("you need complete the word")
+            
+                        
 
 def init_test_result_df(df_test_words):
     df = pd.DataFrame({
@@ -417,7 +410,7 @@ def init_test_result_df(df_test_words):
         'WordID': df_test_words['WordID'],
         'Word': df_test_words['Word'],
         'MaxScore': df_test_words['Word'].apply(lambda x: len(x.replace(" ", ""))),
-        'Score': 0,
+        'Score': -1,
         'Complete': 'N'
     })
     return df
@@ -433,20 +426,21 @@ def main_do_test():
         st.session_state.page == 'test_list'
         return
     
-    # Initialize the current order | show image if it doesn't exist
+    # Initialize the word_index if not exist
     if 'word_index' not in st.session_state:
         st.session_state.word_index = 1 
-
-    # Get the filtered words data base on TestID (selected_test) from WordsList.csv
+    
     test_id = int(selected_test)
+    # Get the filtered words data base on TestID (selected_test) from WordsList.csv
     df_test_words = get_filtered_words(test_id)
     df_test_words = set_words_order(df_test_words, order_type = "sequence") # order_type = "sequence"|"random"
-    
+        
+    # Initialize the test_result dataframe if not exist
     if 'test_result' not in st.session_state or st.session_state.test_result is None:
         st.session_state.test_result = init_test_result_df(df_test_words)
     
     st.subheader(f"Do Test - {test_id}")
-    display_current_row(df_test_words,st.session_state.word_index)        
-    #streamlit_js_eval(js_expressions="sessionStorage.clear();")
+        
+    display_current_row(df_test_words,st.session_state.word_index)
 
 main_do_test()

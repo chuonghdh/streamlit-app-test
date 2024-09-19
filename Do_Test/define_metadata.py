@@ -6,6 +6,7 @@ from io import BytesIO
 import logging
 import time
 import os
+from streamlit_js_eval import streamlit_js_eval
 #from Do_Test.do_test import main_do_test
 
 # Setup logging
@@ -165,6 +166,9 @@ def main_define_metadata():
             st.session_state.word_index = 1
             st.session_state.test_result = None
             st.session_state.AttemptID = new_attempt_id
+            st.session_state.tid = 1
+            st.session_state.last_score = None
+            streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', -1);", key="clear0")
             time.sleep(0.5)
             st.rerun()
             
