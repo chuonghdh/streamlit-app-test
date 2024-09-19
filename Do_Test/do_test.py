@@ -262,9 +262,6 @@ def word_matching(word, tid):
                             document.getElementById("textInput").setSelectionRange(lastIndex, lastIndex);
                         }}, 500);
                     }}
-                    function getSessionStorageValue() {{
-                        return sessionStorage.getItem('wordScore');
-                    }}
                 </script>
             </body>
         </html>
@@ -376,14 +373,12 @@ def display_current_row(df, order_number):
             current_row_data['Description'].iloc[0]
             ), unsafe_allow_html=True)
         word_matching(current_row_data['Word'].iloc[0], st.session_state.tid)  
-    
-    temp = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore');", key = "Get_Score3")
+        temp = streamlit_js_eval(js_expressions="sessionStorage.getItem('wordScore');", key = "Get_Score3")
     if temp != -1 and temp is not None:
         st.session_state.last_score = float(temp)
         st.session_state.test_result = update_test_result_df(st.session_state.test_result, st.session_state.word_index-1, st.session_state.last_score)
-    #st.caption(temp)
-    #streamlit_js_eval(js_expressions="sessionStorage.clear();", key="clear")
     streamlit_js_eval(js_expressions="sessionStorage.setItem('wordScore', -1);", key="clear1")
+    
     incol1, incol2 = st.columns([3,1])
     with incol1:    
         st.write(" ")
@@ -439,9 +434,8 @@ def main_do_test():
     # Initialize the test_result dataframe if not exist
     if 'test_result' not in st.session_state or st.session_state.test_result is None:
         st.session_state.test_result = init_test_result_df(df_test_words)
-    
-    st.subheader(f"Do Test - {test_id}")
         
+    st.subheader(f"Do Test - {test_id}")
     display_current_row(df_test_words,st.session_state.word_index)
 
 main_do_test()
