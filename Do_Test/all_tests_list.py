@@ -105,8 +105,9 @@ def show_dialog(test_name, test_id):
             if not os.path.exists(prd_Temp_path):
                 os.makedirs(prd_Temp_path)
             # create and save audio
-            create_full_audio(test_id, df, word_lang_code, desc_lang_code, path=prd_Audio_path)
-            st.info(f"Audio for {test_id}-{test_name} is created successfully")
+            with st.spinner('Please wait...'):
+                create_full_audio(test_id, df, word_lang_code, desc_lang_code, path=prd_Audio_path)
+            st.success(f"Audio for {test_id}-{test_name} is created successfully")
     
 
 def show_test_list(df):
