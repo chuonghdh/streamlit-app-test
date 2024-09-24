@@ -10,7 +10,7 @@ pyperclip
 streamlit-js-eval
 googletrans==4.0.0-rc1
 pydub
-io
-glob
-base64
+#io
+#glob
+#base64
 
